@@ -8,16 +8,13 @@ public class PaymentRequest {
 
     private String currency;
 
-    private String paymentMethod;
-
     public PaymentRequest() {
     }
 
-    public PaymentRequest(Long orderId, Integer amount, String currency, String paymentMethod) {
+    public PaymentRequest(Long orderId, Integer amount, String currency) {
         this.orderId = orderId;
         this.amount = amount;
         this.currency = currency;
-        this.paymentMethod = paymentMethod;
     }
 
     public Long getOrderId() {
@@ -44,18 +41,9 @@ public class PaymentRequest {
         this.currency = currency;
     }
 
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
     @Override
     public String toString() {
-        return "PaymentRequest [orderId=" + orderId + ", amount=" + amount + ", currency=" + currency
-                + ", paymentMethod=" + paymentMethod + "]";
+        return "PaymentRequest [orderId=" + orderId + ", amount=" + amount + ", currency=" + currency + "]";
     }
 
 }

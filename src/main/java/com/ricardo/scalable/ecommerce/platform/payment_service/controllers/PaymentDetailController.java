@@ -3,6 +3,7 @@ package com.ricardo.scalable.ecommerce.platform.payment_service.controllers;
 import static com.ricardo.scalable.ecommerce.platform.libs_common.validation.RequestBodyValidation.validation;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ricardo.scalable.ecommerce.platform.payment_service.entities.PaymentDetail;
-import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.PaymentDetailDto;
+import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.PaymentRequest;
 import com.ricardo.scalable.ecommerce.platform.payment_service.services.PaymentDetailService;
 
 import jakarta.validation.Valid;
@@ -100,6 +101,18 @@ public class PaymentDetailController {
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/payment-confirmation")
+    public ResponseEntity<Map<String, String>> getPaymentConfirmation() {
+        Map<String, String> paymentConfirmation = Map.of("message", "Payment confirmation received successfully.");
+        return ResponseEntity.ok(paymentConfirmation);
+    }
+
+    @GetMapping("/payment-return")
+    public ResponseEntity<Map<String, String>> getPaymentReturn() {
+        Map<String, String> paymentReturn = Map.of("message", "Payment creation was successful. You are redirected to the order page.");
+        return ResponseEntity.ok(paymentReturn);
+    }
+
     @GetMapping("/")
     public ResponseEntity<List<PaymentDetail>> getAllPaymentDetails() {
         List<PaymentDetail> paymentDetails = paymentDetailService.findAll();
@@ -108,7 +121,7 @@ public class PaymentDetailController {
 
     @PostMapping("/")
     public ResponseEntity<?> createPaymentDetail(
-        @Valid @RequestBody PaymentDetailDto paymentDetail,
+        @Valid @RequestBody PaymentRequest paymentDetail,
         BindingResult result
     ) {
         if (result.hasErrors()) {
@@ -123,7 +136,7 @@ public class PaymentDetailController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePaymentDetail(
-        @Valid @RequestBody PaymentDetailDto paymentDetail,
+        @Valid @RequestBody PaymentRequest paymentDetail,
         @PathVariable Long id,
         BindingResult result
     ) {
