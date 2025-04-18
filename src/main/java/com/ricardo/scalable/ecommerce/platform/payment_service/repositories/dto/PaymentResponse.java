@@ -10,14 +10,17 @@ public class PaymentResponse {
 
     private String message;
 
+    private String paymentLink;
+
     public PaymentResponse() {
     }
 
-    public PaymentResponse(String transactionId, String status, String provider, String message) {
+    public PaymentResponse(String transactionId, String status, String provider, String message, String paymentLink) {
         this.transactionId = transactionId;
         this.status = status;
         this.provider = provider;
         this.message = message;
+        this.paymentLink = paymentLink;
     }
 
     public String getTransactionId() {
@@ -52,10 +55,18 @@ public class PaymentResponse {
         this.message = message;
     }
 
+    public String getPaymentLink() {
+        return paymentLink;
+    }
+
+    public void setPaymentLink(String paymentLink) {
+        this.paymentLink = paymentLink;
+    }
+
     @Override
     public String toString() {
         return "PaymentResponse [transactionId=" + transactionId + ", status=" + status + ", provider=" + provider
-                + ", message=" + message + "]";
+                + ", message=" + message + ", paymentLink=" + paymentLink + "]";
     }
 
 }

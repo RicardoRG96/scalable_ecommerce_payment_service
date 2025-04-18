@@ -15,8 +15,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.FlowApiException;
+import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.FlowCreatePaymentResponse;
 import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.PaymentRequest;
 import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.PaymentResponse;
 import static com.ricardo.scalable.ecommerce.platform.payment_service.util.SignatureUtil.*;
@@ -56,26 +58,25 @@ public class FlowPaymentGateway implements PaymentGateway {
 
         HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+        ResponseEntity<FlowCreatePaymentResponse> response = restTemplate.exchange(
             flowApiUrl + "/payment/create",
             HttpMethod.POST,
             httpEntity,
-            new ParameterizedTypeReference<Map<String, Object>>() {
-            }
+            FlowCreatePaymentResponse.class
         );
 
-        Map<String, Object> responseBody = Optional.ofNullable(response.getBody())
+        FlowCreatePaymentResponse responseBody = Optional.ofNullable(response.getBody())
                 .orElseThrow(() -> new FlowApiException("La respuesta de la API de Flow es nula"));
 
-        String token = Optional.ofNullable((String) responseBody.get("token"))
+        String token = Optional.ofNullable((String) responseBody.getToken())
                 .orElseThrow(() -> new FlowApiException("No se encontró el token en la respuesta de FLOW"));
 
-        String url = Optional.ofNullable((String) responseBody.get("url"))
+        String url = Optional.ofNullable((String) responseBody.getUrl())
                 .orElseThrow(() -> new FlowApiException("No se encontró la URL en la respuesta de FLOW"));
 
         String redirectPaymentUrl = url + "?token=" + token;
 
-        return new PaymentResponse(token, "PENDING", "FLOW", redirectPaymentUrl);
+        return new PaymentResponse(token, "PENDING", "FLOW", "Pago generado", redirectPaymentUrl);
     }
 
     private Map<String, Object> generateBody(PaymentRequest request) {
@@ -93,34 +94,30 @@ public class FlowPaymentGateway implements PaymentGateway {
         return body;
     }
 
-    // private String generateSignature(PaymentRequest request) throws Exception {
-    //     Map<String, Object> params = generateBody(request);
+    public String getPaymentStatus(String token) {
+        Map<String, Object> params = new TreeMap<>();
+        params.put("apiKey", apiKey);
+        params.put("token", token);
 
-    //     List<String> sortedKeys = new ArrayList<>(params.keySet());
-    //     Collections.sort(sortedKeys);
+        String signature = createSignedString(params, secretKey);
+        params.put("s", signature);
 
-    //     StringBuilder dataToSign = new StringBuilder();
-    //     for (String key : sortedKeys) {
-    //         dataToSign.append(key).append(params.get(key));
-    //     }
+        UriComponentsBuilder uri = UriComponentsBuilder.fromUriString(flowApiUrl + "/payment/getStatus")
+                .queryParam("apiKey", apiKey)
+                .queryParam("token", token)
+                .queryParam("s", signature);
 
-    //     Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-    //     SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
-    //     sha256_HMAC.init(secretKeySpec);
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+            uri.toUriString(),
+            HttpMethod.GET,
+            null,
+            new ParameterizedTypeReference<Map<String, Object>>() {}
+        );
 
-    //     byte[] hashBytes = sha256_HMAC.doFinal(dataToSign.toString().getBytes("UTF-8"));
+        Map<String, Object> responseBody = Optional.ofNullable(response.getBody())
+                .orElseThrow(() -> new FlowApiException("La respuesta de la API de Flow es nula"));
 
-    //     StringBuilder hexString = new StringBuilder();
-    //     for (byte b : hashBytes) {
-    //         hexString.append(String.format("%02x", b));
-    //     }
-
-    //     return hexString.toString();
-    // }
-
-    // private User getUser(Long orderId) {
-    //     Long userId = orderRepository.findById(orderId).orElseThrow().getUser().getId();
-    //     return userRepository.findById(userId).orElseThrow();
-    // }
+        return (String) responseBody.get("status");
+    }
 
 }
