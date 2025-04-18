@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.ricardo.scalable.ecommerce.platform.libs_common.entities.Order;
 import com.ricardo.scalable.ecommerce.platform.libs_common.enums.PaymentStatus;
-import com.ricardo.scalable.ecommerce.platform.payment_service.entities.PaymentDetail;
-import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.OrderRepository;
-import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.PaymentDetailRepository;
-import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.PaymentDetailDto;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.OrderRepository;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.PaymentDetailRepository;
 
 @Service
 public class PaymentDetailServiceImpl implements PaymentDetailService {
@@ -63,17 +63,14 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
     }
 
     @Override
-    public Optional<PaymentDetail> save(PaymentDetailDto paymentDetail) {
+    public Optional<PaymentDetail> save(PaymentRequest paymentDetail) {
         Optional<Order> orderOptional = orderRepository.findById(paymentDetail.getOrderId());
         if (orderOptional.isPresent()) {
             PaymentDetail paymentDetailToCreate = new PaymentDetail();
             paymentDetailToCreate.setOrder(orderOptional.orElseThrow());
             paymentDetailToCreate.setAmount(paymentDetail.getAmount());
             paymentDetailToCreate.setCurrency(paymentDetail.getCurrency());
-            paymentDetailToCreate.setProvider(paymentDetail.getProvider());
-            paymentDetailToCreate.setPaymentMethod(paymentDetail.getPaymentMethod());
-            paymentDetailToCreate.setTransactionId(paymentDetail.getTransactionId());
-            paymentDetailToCreate.setStatus(PaymentStatus.valueOf(paymentDetail.getStatus().toUpperCase()));
+            paymentDetailToCreate.setStatus(PaymentStatus.valueOf("PENDING"));
 
             return Optional.of(paymentDetailRepository.save(paymentDetailToCreate));
         }
@@ -81,7 +78,7 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
     }
 
     @Override
-    public Optional<PaymentDetail> update(Long id, PaymentDetailDto paymentDetail) {
+    public Optional<PaymentDetail> update(Long id, PaymentRequest paymentDetail) {
         Optional<PaymentDetail> paymentDetailOptional = paymentDetailRepository.findById(id);
         Optional<Order> orderOptional = orderRepository.findById(paymentDetail.getOrderId());
 
