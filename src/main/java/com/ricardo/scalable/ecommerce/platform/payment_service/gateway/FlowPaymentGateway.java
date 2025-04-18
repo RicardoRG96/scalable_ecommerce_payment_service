@@ -1,16 +1,12 @@
 package com.ricardo.scalable.ecommerce.platform.payment_service.gateway;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -20,12 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.ricardo.scalable.ecommerce.platform.libs_common.entities.Order;
-import com.ricardo.scalable.ecommerce.platform.libs_common.entities.User;
-import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.OrderRepository;
-import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.UserRepository;
+import com.ricardo.scalable.ecommerce.platform.payment_service.exception.FlowApiException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.PaymentRequest;
 import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.PaymentResponse;
+import static com.ricardo.scalable.ecommerce.platform.payment_service.util.SignatureUtil.*;
 
 @Service
 public class FlowPaymentGateway implements PaymentGateway {
@@ -45,57 +39,53 @@ public class FlowPaymentGateway implements PaymentGateway {
     @Value("${flow.api.url.return}")
     private String urlReturn;
 
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public PaymentResponse processPayment(PaymentRequest request) {
-        PaymentResponse paymentResponse = null;
-        try {
-            Map<String, Object> body = generateBody(request);
-            String signature = generateSignature(request);
-            body.put("s", signature);
+        Map<String, Object> params = generateBody(request);
+        String signature = createSignedString(params, secretKey);
+        params.put("s", signature);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/x-www-form-urlencoded");
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/x-www-form-urlencoded");
 
-            HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(body, headers);
+        String body = params.entrySet().stream()
+                .map(e -> e.getKey() + "=" + URLEncoder.encode((String) e.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
 
-            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                flowApiUrl + "/payment/create",
-                HttpMethod.POST,
-                httpEntity,
-                new ParameterizedTypeReference<Map<String, Object>>() {
-                }
-            );
+        HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
 
-            Map<String, Object> responseBody = response.getBody();
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+            flowApiUrl + "/payment/create",
+            HttpMethod.POST,
+            httpEntity,
+            new ParameterizedTypeReference<Map<String, Object>>() {
+            }
+        );
 
-            paymentResponse = new PaymentResponse();
-            paymentResponse.setTransactionId((String) responseBody.get("token"));
-            paymentResponse.setStatus("PENDING");
-            paymentResponse.setProvider("FLOW");
-            paymentResponse.setMessage("Transacción creada con FLOW");
-            
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating payment", e);
-        }
-        return paymentResponse;
+        Map<String, Object> responseBody = Optional.ofNullable(response.getBody())
+                .orElseThrow(() -> new FlowApiException("La respuesta de la API de Flow es nula"));
+
+        String token = Optional.ofNullable((String) responseBody.get("token"))
+                .orElseThrow(() -> new FlowApiException("No se encontró el token en la respuesta de FLOW"));
+
+        String url = Optional.ofNullable((String) responseBody.get("url"))
+                .orElseThrow(() -> new FlowApiException("No se encontró la URL en la respuesta de FLOW"));
+
+        String redirectPaymentUrl = url + "?token=" + token;
+
+        return new PaymentResponse(token, "PENDING", "FLOW", redirectPaymentUrl);
     }
 
     private Map<String, Object> generateBody(PaymentRequest request) {
-        Map<String, Object> body = new HashMap<>();
+        Map<String, Object> body = new TreeMap<>();
         body.put("apiKey", apiKey);
         body.put("commerceOrder", String.valueOf(request.getOrderId()));
-        body.put("subject", "pago para producto en e-commerce");
+        body.put("subject", "Pago orden " + request.getOrderId());
         body.put("currency", request.getCurrency());
         body.put("amount", request.getAmount());
-        body.put("email", getUser(request.getOrderId()).getEmail());
+        body.put("email", request.getEmail());
         body.put("urlConfirmation", urlConfirmation);
         body.put("urlReturn", urlReturn);
         body.put("timeout", 300);
@@ -103,34 +93,34 @@ public class FlowPaymentGateway implements PaymentGateway {
         return body;
     }
 
-    private String generateSignature(PaymentRequest request) throws Exception {
-        Map<String, Object> params = generateBody(request);
+    // private String generateSignature(PaymentRequest request) throws Exception {
+    //     Map<String, Object> params = generateBody(request);
 
-        List<String> sortedKeys = new ArrayList<>(params.keySet());
-        Collections.sort(sortedKeys);
+    //     List<String> sortedKeys = new ArrayList<>(params.keySet());
+    //     Collections.sort(sortedKeys);
 
-        StringBuilder dataToSign = new StringBuilder();
-        for (String key : sortedKeys) {
-            dataToSign.append(key).append(params.get(key));
-        }
+    //     StringBuilder dataToSign = new StringBuilder();
+    //     for (String key : sortedKeys) {
+    //         dataToSign.append(key).append(params.get(key));
+    //     }
 
-        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
-        sha256_HMAC.init(secretKeySpec);
+    //     Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+    //     SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
+    //     sha256_HMAC.init(secretKeySpec);
 
-        byte[] hashBytes = sha256_HMAC.doFinal(dataToSign.toString().getBytes("UTF-8"));
+    //     byte[] hashBytes = sha256_HMAC.doFinal(dataToSign.toString().getBytes("UTF-8"));
 
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : hashBytes) {
-            hexString.append(String.format("%02x", b));
-        }
+    //     StringBuilder hexString = new StringBuilder();
+    //     for (byte b : hashBytes) {
+    //         hexString.append(String.format("%02x", b));
+    //     }
 
-        return hexString.toString();
-    }
+    //     return hexString.toString();
+    // }
 
-    private User getUser(Long orderId) {
-        Long userId = orderRepository.findById(orderId).orElseThrow().getUser().getId();
-        return userRepository.findById(userId).orElseThrow();
-    }
+    // private User getUser(Long orderId) {
+    //     Long userId = orderRepository.findById(orderId).orElseThrow().getUser().getId();
+    //     return userRepository.findById(userId).orElseThrow();
+    // }
 
 }
