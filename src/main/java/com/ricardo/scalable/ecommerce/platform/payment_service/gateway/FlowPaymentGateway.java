@@ -8,7 +8,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,9 +17,12 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.FlowApiException;
-import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.FlowCreatePaymentResponse;
-import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.PaymentRequest;
-import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.PaymentResponse;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.PaymentStatus;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.FlowCreatePaymentResponse;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.FlowPaymentStatusResponse;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentResponse;
+
 import static com.ricardo.scalable.ecommerce.platform.payment_service.util.SignatureUtil.*;
 
 @Service
@@ -107,17 +109,18 @@ public class FlowPaymentGateway implements PaymentGateway {
                 .queryParam("token", token)
                 .queryParam("s", signature);
 
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+        ResponseEntity<FlowPaymentStatusResponse> response = restTemplate.getForEntity(
             uri.toUriString(),
-            HttpMethod.GET,
-            null,
-            new ParameterizedTypeReference<Map<String, Object>>() {}
+            FlowPaymentStatusResponse.class
         );
 
-        Map<String, Object> responseBody = Optional.ofNullable(response.getBody())
+        FlowPaymentStatusResponse responseBody = Optional.ofNullable(response.getBody())
                 .orElseThrow(() -> new FlowApiException("La respuesta de la API de Flow es nula"));
 
-        return (String) responseBody.get("status");
+        int flowStatusCode = responseBody.getStatus();
+        PaymentStatus paymentStatus = PaymentStatus.fromCode(flowStatusCode);
+
+        return paymentStatus.getDescription();
     }
 
 }
