@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 
 import com.ricardo.scalable.ecommerce.platform.libs_common.entities.Order;
 import com.ricardo.scalable.ecommerce.platform.libs_common.enums.PaymentStatus;
+import com.ricardo.scalable.ecommerce.platform.payment_service.gateway.PaymentGateway;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentResponse;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.OrderRepository;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.PaymentDetailRepository;
@@ -18,6 +20,9 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
 
     @Autowired
     private PaymentDetailRepository paymentDetailRepository;
+
+    @Autowired
+    private PaymentGateway paymentGateway;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -63,7 +68,7 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
     }
 
     @Override
-    public Optional<PaymentDetail> save(PaymentRequest paymentDetail) {
+    public Optional<PaymentDetail> createPaymentAndGetRedirectUrl(PaymentRequest paymentDetail) {
         Optional<Order> orderOptional = orderRepository.findById(paymentDetail.getOrderId());
         if (orderOptional.isPresent()) {
             PaymentDetail paymentDetailToCreate = new PaymentDetail();
@@ -71,6 +76,10 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
             paymentDetailToCreate.setAmount(paymentDetail.getAmount());
             paymentDetailToCreate.setCurrency(paymentDetail.getCurrency());
             paymentDetailToCreate.setStatus(PaymentStatus.valueOf("PENDING"));
+
+            PaymentResponse paymentResponse = paymentGateway.processPayment(paymentDetail);
+            paymentDetailToCreate.setProvider(paymentResponse.getProvider());
+            paymentDetailToCreate.setTransactionId(paymentResponse.getTransactionId());
 
             return Optional.of(paymentDetailRepository.save(paymentDetailToCreate));
         }

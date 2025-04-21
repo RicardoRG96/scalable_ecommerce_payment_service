@@ -24,7 +24,7 @@ public interface PaymentDetailService {
 
     List<PaymentDetail> findAll();
 
-    Optional<PaymentDetail> save(PaymentRequest paymentDetail);
+    Optional<PaymentDetail> createPaymentAndGetRedirectUrl(PaymentRequest paymentDetail);
 
     void delete(Long id);
 }

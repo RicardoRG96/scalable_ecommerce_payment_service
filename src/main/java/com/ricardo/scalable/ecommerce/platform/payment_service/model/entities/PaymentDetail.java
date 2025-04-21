@@ -47,8 +47,8 @@ public class PaymentDetail {
     private String paymentMethod;
 
     @Column(name = "transaction_id")
-    @NotNull
-    private Long transactionId;
+    @NotBlank
+    private String transactionId;
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -66,7 +66,7 @@ public class PaymentDetail {
     }
 
     public PaymentDetail(Long id, @NotNull Order order, @NotNull Integer amount, @NotBlank String currency,
-            @NotBlank String provider, @NotBlank String paymentMethod, @NotNull Long transactionId,
+            @NotBlank String provider, @NotBlank String paymentMethod, @NotNull String transactionId,
             @NotNull PaymentStatus status, Timestamp createdAt, Timestamp updatedAt) {
         this.id = id;
         this.order = order;
@@ -128,11 +128,11 @@ public class PaymentDetail {
         this.paymentMethod = paymentMethod;
     }
 
-    public Long getTransactionId() {
+    public String getTransactionId() {
         return transactionId;
     }
 
-    public void setTransactionId(Long transactionId) {
+    public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
     }
 
