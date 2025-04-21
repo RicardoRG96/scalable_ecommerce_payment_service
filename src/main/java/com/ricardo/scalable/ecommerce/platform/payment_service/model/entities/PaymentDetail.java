@@ -1,4 +1,4 @@
-package com.ricardo.scalable.ecommerce.platform.payment_service.entities;
+package com.ricardo.scalable.ecommerce.platform.payment_service.model.entities;
 
 import java.sql.Timestamp;
 

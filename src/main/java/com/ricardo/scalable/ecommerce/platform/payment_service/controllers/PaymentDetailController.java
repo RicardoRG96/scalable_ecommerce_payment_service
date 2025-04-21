@@ -14,12 +14,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ricardo.scalable.ecommerce.platform.payment_service.entities.PaymentDetail;
-import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.PaymentRequest;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
 import com.ricardo.scalable.ecommerce.platform.payment_service.services.PaymentDetailService;
 
 import jakarta.validation.Valid;
@@ -130,22 +129,6 @@ public class PaymentDetailController {
         Optional<PaymentDetail> savedPaymentDetail = paymentDetailService.save(paymentDetail);
         if (savedPaymentDetail.isPresent()) {
             return ResponseEntity.status(HttpStatus.CREATED).body(savedPaymentDetail.orElseThrow());
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updatePaymentDetail(
-        @Valid @RequestBody PaymentRequest paymentDetail,
-        @PathVariable Long id,
-        BindingResult result
-    ) {
-        if (result.hasErrors()) {
-            return validation(result);
-        }
-        Optional<PaymentDetail> updatedPaymentDetail = paymentDetailService.update(id, paymentDetail);
-        if (updatedPaymentDetail.isPresent()) {
-            return ResponseEntity.ok(updatedPaymentDetail.orElseThrow());
         }
         return ResponseEntity.notFound().build();
     }

@@ -1,4 +1,4 @@
-package com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto;
+package com.ricardo.scalable.ecommerce.platform.payment_service.model.dto;
 
 public class PaymentRequest {
 
@@ -57,5 +57,5 @@ public class PaymentRequest {
         return "PaymentRequest [orderId=" + orderId + ", amount=" + amount + ", currency=" + currency + ", email="
                 + email + "]";
     }
-    
+
 }

@@ -1,11 +1,11 @@
-package com.ricardo.scalable.ecommerce.platform.payment_service.repositories;
+package com.ricardo.scalable.ecommerce.platform.payment_service.model.repository;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.ricardo.scalable.ecommerce.platform.payment_service.entities.PaymentDetail;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
 
 public interface PaymentDetailRepository extends CrudRepository<PaymentDetail, Long> {
     

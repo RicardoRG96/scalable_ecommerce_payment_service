@@ -1,4 +1,4 @@
-package com.ricardo.scalable.ecommerce.platform.payment_service.repositories;
+package com.ricardo.scalable.ecommerce.platform.payment_service.model.repository;
 
 import org.springframework.data.repository.CrudRepository;
 

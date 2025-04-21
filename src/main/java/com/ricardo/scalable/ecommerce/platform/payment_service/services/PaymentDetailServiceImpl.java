@@ -78,29 +78,6 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
     }
 
     @Override
-    public Optional<PaymentDetail> update(Long id, PaymentRequest paymentDetail) {
-        Optional<PaymentDetail> paymentDetailOptional = paymentDetailRepository.findById(id);
-        Optional<Order> orderOptional = orderRepository.findById(paymentDetail.getOrderId());
-
-        if (
-            paymentDetailOptional.isPresent() && 
-            orderOptional.isPresent()
-        ) {
-            PaymentDetail paymentDetailToUpdate = paymentDetailOptional.orElseThrow();
-            paymentDetailToUpdate.setOrder(orderOptional.orElseThrow());
-            paymentDetailToUpdate.setAmount(paymentDetail.getAmount());
-            paymentDetailToUpdate.setCurrency(paymentDetail.getCurrency());
-            paymentDetailToUpdate.setProvider(paymentDetail.getProvider());
-            paymentDetailToUpdate.setPaymentMethod(paymentDetail.getPaymentMethod());
-            paymentDetailToUpdate.setTransactionId(paymentDetail.getTransactionId());
-            paymentDetailToUpdate.setStatus(PaymentStatus.valueOf(paymentDetail.getStatus().toUpperCase()));
-
-            return Optional.of(paymentDetailRepository.save(paymentDetailToUpdate));
-        }
-        return Optional.empty();
-    }
-
-    @Override
     public void delete(Long id) {
         paymentDetailRepository.deleteById(id);
     }

@@ -3,8 +3,8 @@ package com.ricardo.scalable.ecommerce.platform.payment_service.services;
 import java.util.List;
 import java.util.Optional;
 
-import com.ricardo.scalable.ecommerce.platform.payment_service.entities.PaymentDetail;
-import com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto.PaymentDetailDto;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
 
 public interface PaymentDetailService {
 
@@ -24,9 +24,7 @@ public interface PaymentDetailService {
 
     List<PaymentDetail> findAll();
 
-    Optional<PaymentDetail> save(PaymentDetailDto paymentDetail);
-
-    Optional<PaymentDetail> update(Long id, PaymentDetailDto paymentDetail);
+    Optional<PaymentDetail> save(PaymentRequest paymentDetail);
 
     void delete(Long id);
 }

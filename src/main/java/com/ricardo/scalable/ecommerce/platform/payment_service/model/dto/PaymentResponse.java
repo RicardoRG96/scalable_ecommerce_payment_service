@@ -1,4 +1,4 @@
-package com.ricardo.scalable.ecommerce.platform.payment_service.repositories.dto;
+package com.ricardo.scalable.ecommerce.platform.payment_service.model.dto;
 
 public class PaymentResponse {
 
