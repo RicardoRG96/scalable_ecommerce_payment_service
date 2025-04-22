@@ -87,11 +87,11 @@ public class FlowPaymentGateway implements PaymentGateway {
         body.put("commerceOrder", String.valueOf(request.getOrderId()));
         body.put("subject", "Pago orden " + request.getOrderId());
         body.put("currency", request.getCurrency());
-        body.put("amount", request.getAmount());
+        body.put("amount", request.getAmount().toString());
         body.put("email", request.getEmail());
         body.put("urlConfirmation", urlConfirmation);
         body.put("urlReturn", urlReturn);
-        body.put("timeout", 300);
+        body.put("timeout", "300");
         body.put("payment_currency", request.getCurrency());
         return body;
     }

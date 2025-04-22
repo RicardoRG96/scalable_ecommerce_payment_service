@@ -1,5 +1,6 @@
 package com.ricardo.scalable.ecommerce.platform.payment_service.model.entities;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -34,7 +35,7 @@ public class PaymentDetail {
     private Order order;
 
     @NotNull
-    private Integer amount;
+    private BigDecimal amount;
 
     @NotBlank
     private String currency;
@@ -65,7 +66,7 @@ public class PaymentDetail {
     public PaymentDetail() {
     }
 
-    public PaymentDetail(Long id, @NotNull Order order, @NotNull Integer amount, @NotBlank String currency,
+    public PaymentDetail(Long id, @NotNull Order order, @NotNull BigDecimal amount, @NotBlank String currency,
             @NotBlank String provider, @NotBlank String paymentMethod, @NotNull String transactionId,
             @NotNull PaymentStatus status, Timestamp createdAt, Timestamp updatedAt) {
         this.id = id;
@@ -96,11 +97,11 @@ public class PaymentDetail {
         this.order = order;
     }
 
-    public Integer getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

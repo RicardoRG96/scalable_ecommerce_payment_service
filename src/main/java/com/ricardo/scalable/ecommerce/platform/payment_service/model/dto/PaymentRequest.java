@@ -1,5 +1,7 @@
 package com.ricardo.scalable.ecommerce.platform.payment_service.model.dto;
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +14,7 @@ public class PaymentRequest {
 
     @NotNull
     @Min(1)
-    private Integer amount;
+    private BigDecimal amount;
 
     @NotBlank
     private String currency;
@@ -23,7 +25,7 @@ public class PaymentRequest {
     public PaymentRequest() {
     }
 
-    public PaymentRequest(Long orderId, Integer amount, String currency, String email) {
+    public PaymentRequest(Long orderId, BigDecimal amount, String currency, String email) {
         this.orderId = orderId;
         this.amount = amount;
         this.currency = currency;
@@ -38,11 +40,11 @@ public class PaymentRequest {
         this.orderId = orderId;
     }
 
-    public Integer getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
