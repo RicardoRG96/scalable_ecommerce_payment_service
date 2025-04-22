@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.ricardo.scalable.ecommerce.platform.libs_common.entities.Order;
 import com.ricardo.scalable.ecommerce.platform.libs_common.enums.PaymentStatus;
+import com.ricardo.scalable.ecommerce.platform.payment_service.exception.FlowApiException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.gateway.PaymentGateway;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentResponse;
@@ -53,7 +54,7 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
     }
 
     @Override
-    public Optional<PaymentDetail> findByTransactionId(Long transactionId) {
+    public Optional<PaymentDetail> findByTransactionId(String transactionId) {
         return paymentDetailRepository.findByTransactionId(transactionId);
     }
 
@@ -68,7 +69,7 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
     }
 
     @Override
-    public Optional<PaymentDetail> createPaymentAndGetRedirectUrl(PaymentRequest paymentDetail) {
+    public Optional<String> createPaymentAndGetRedirectUrl(PaymentRequest paymentDetail) {
         Optional<Order> orderOptional = orderRepository.findById(paymentDetail.getOrderId());
         if (orderOptional.isPresent()) {
             PaymentDetail paymentDetailToCreate = new PaymentDetail();
@@ -81,9 +82,23 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
             paymentDetailToCreate.setProvider(paymentResponse.getProvider());
             paymentDetailToCreate.setTransactionId(paymentResponse.getTransactionId());
 
-            return Optional.of(paymentDetailRepository.save(paymentDetailToCreate));
+            paymentDetailRepository.save(paymentDetailToCreate);
+
+            return Optional.of(paymentResponse.getPaymentLink());
         }
         return Optional.empty();
+    }
+
+    @Override
+    public void confirmPayment(String token) {
+        String status = paymentGateway.getPaymentStatus(token);
+
+        PaymentDetail payment = paymentDetailRepository.findByTransactionId(token)
+                .orElseThrow(() -> new FlowApiException("Transacción no encontrada"));
+
+        payment.setStatus(PaymentStatus.valueOf(status));
+
+        paymentDetailRepository.save(payment);
     }
 
     @Override

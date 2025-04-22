@@ -96,6 +96,7 @@ public class FlowPaymentGateway implements PaymentGateway {
         return body;
     }
 
+    @Override
     public String getPaymentStatus(String token) {
         Map<String, Object> params = new TreeMap<>();
         params.put("apiKey", apiKey);

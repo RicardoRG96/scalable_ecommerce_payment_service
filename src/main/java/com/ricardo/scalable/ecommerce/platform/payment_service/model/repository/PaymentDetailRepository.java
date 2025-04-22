@@ -17,7 +17,7 @@ public interface PaymentDetailRepository extends CrudRepository<PaymentDetail, L
 
     Optional<List<PaymentDetail>> findByPaymentMethod(String paymentMethod);
 
-    Optional<PaymentDetail> findByTransactionId(Long transactionId);
+    Optional<PaymentDetail> findByTransactionId(String transactionId);
 
     Optional<List<PaymentDetail>> findByStatus(String status);
 

@@ -7,4 +7,6 @@ public interface PaymentGateway {
 
     PaymentResponse processPayment(PaymentRequest request);
 
+    String getPaymentStatus(String paymentId);
+
 }

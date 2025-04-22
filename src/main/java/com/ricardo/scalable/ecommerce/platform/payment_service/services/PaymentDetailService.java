@@ -18,13 +18,15 @@ public interface PaymentDetailService {
 
     Optional<List<PaymentDetail>> findByPaymentMethod(String paymentMethod);
 
-    Optional<PaymentDetail> findByTransactionId(Long transactionId);
+    Optional<PaymentDetail> findByTransactionId(String transactionId);
 
     Optional<List<PaymentDetail>> findByStatus(String status);
 
     List<PaymentDetail> findAll();
 
-    Optional<PaymentDetail> createPaymentAndGetRedirectUrl(PaymentRequest paymentDetail);
+    Optional<String> createPaymentAndGetRedirectUrl(PaymentRequest paymentDetail);
+
+    void confirmPayment(String token);
 
     void delete(Long id);
 }

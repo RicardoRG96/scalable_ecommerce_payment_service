@@ -37,4 +37,17 @@ public class GlobalExceptionHandler {
                 .body(errorBody);
     }
 
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleOrderNotFoundException(OrderNotFoundException ex) {
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("error", "Orden no encontrada");
+        errorBody.put("timestamp", LocalDateTime.now());
+        errorBody.put("message", ex.getMessage());
+        errorBody.put("status", HttpStatus.NOT_FOUND.value());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorBody);
+    }
+
 }

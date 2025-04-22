@@ -8,10 +8,10 @@ import com.ricardo.scalable.ecommerce.platform.payment_service.exception.Unsuppo
 
 public enum PaymentStatus {
     
-    PENDING(1, "PENDIENTE"),
-    PAID(2, "PAGADA"),
-    REJECTED(3, "RECHAZADA"),
-    CANCELLED(4, "ANULADA");
+    PENDING(1, "PENDING"),
+    COMPLETED(2, "COMPLETED"),
+    FAILED(3, "FAILED"),
+    REFUNDED(4, "REFUNDED");
 
     private final int code;
 
