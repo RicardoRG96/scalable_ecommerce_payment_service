@@ -98,6 +98,16 @@ public class FlowPaymentGateway implements PaymentGateway {
 
     @Override
     public String getPaymentStatus(String token) {
+        FlowPaymentStatusResponse response = getFlowPaymentStatusResponse(token)
+                .orElseThrow(() -> new FlowApiException("La respuesta de la API de Flow es nula"));
+
+        int flowStatusCode = response.getStatus();
+        PaymentStatus paymentStatus = PaymentStatus.fromCode(flowStatusCode);
+
+        return paymentStatus.getDescription();
+    }
+
+    private Optional<FlowPaymentStatusResponse> getFlowPaymentStatusResponse(String token) {
         Map<String, Object> params = new TreeMap<>();
         params.put("apiKey", apiKey);
         params.put("token", token);
@@ -115,13 +125,17 @@ public class FlowPaymentGateway implements PaymentGateway {
             FlowPaymentStatusResponse.class
         );
 
-        FlowPaymentStatusResponse responseBody = Optional.ofNullable(response.getBody())
+        return Optional.ofNullable(response.getBody());
+    }
+
+    @Override
+    public String getPaymentMethod(String token) {
+        FlowPaymentStatusResponse response = getFlowPaymentStatusResponse(token)
                 .orElseThrow(() -> new FlowApiException("La respuesta de la API de Flow es nula"));
 
-        int flowStatusCode = responseBody.getStatus();
-        PaymentStatus paymentStatus = PaymentStatus.fromCode(flowStatusCode);
+        String flowPaymentMethod = response.getPaymentData().getMedia();
 
-        return paymentStatus.getDescription();
+        return flowPaymentMethod;
     }
 
 }

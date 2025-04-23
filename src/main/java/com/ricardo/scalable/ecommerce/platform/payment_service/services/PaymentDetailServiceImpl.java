@@ -92,11 +92,13 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
     @Override
     public void confirmPayment(String token) {
         String status = paymentGateway.getPaymentStatus(token);
+        String paymentMethod = paymentGateway.getPaymentMethod(token);
 
         PaymentDetail payment = paymentDetailRepository.findByTransactionId(token)
                 .orElseThrow(() -> new FlowApiException("Transacción no encontrada"));
 
         payment.setStatus(PaymentStatus.valueOf(status));
+        payment.setPaymentMethod(paymentMethod);
 
         paymentDetailRepository.save(payment);
     }

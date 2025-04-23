@@ -18,8 +18,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "payment_details")
@@ -31,28 +29,21 @@ public class PaymentDetail {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
-    @NotNull
     private Order order;
 
-    @NotNull
     private BigDecimal amount;
 
-    @NotBlank
     private String currency;
 
-    @NotBlank
     private String provider;
 
     @Column(name = "payment_method")
-    @NotBlank
     private String paymentMethod;
 
     @Column(name = "transaction_id")
-    @NotBlank
     private String transactionId;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
     private PaymentStatus status;
 
     @Column(name = "created_at")
@@ -66,9 +57,9 @@ public class PaymentDetail {
     public PaymentDetail() {
     }
 
-    public PaymentDetail(Long id, @NotNull Order order, @NotNull BigDecimal amount, @NotBlank String currency,
-            @NotBlank String provider, @NotBlank String paymentMethod, @NotNull String transactionId,
-            @NotNull PaymentStatus status, Timestamp createdAt, Timestamp updatedAt) {
+    public PaymentDetail(Long id, Order order, BigDecimal amount, String currency,
+            String provider, String paymentMethod, String transactionId,
+            PaymentStatus status, Timestamp createdAt, Timestamp updatedAt) {
         this.id = id;
         this.order = order;
         this.amount = amount;

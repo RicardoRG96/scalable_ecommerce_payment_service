@@ -9,4 +9,6 @@ public interface PaymentGateway {
 
     String getPaymentStatus(String paymentId);
 
+    String getPaymentMethod(String paymentId);
+
 }
