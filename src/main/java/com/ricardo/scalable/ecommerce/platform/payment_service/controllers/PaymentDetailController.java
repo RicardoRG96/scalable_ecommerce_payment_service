@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -105,16 +107,29 @@ public class PaymentDetailController {
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/payment-confirmation")
-    public ResponseEntity<Void> confirmPayment(@RequestParam String token) {
+    @PostMapping("/payment-confirmation")
+    public ResponseEntity<String> confirmPayment(@RequestParam String token) {
         paymentDetailService.confirmPayment(token);
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("/payment-return"))
-                .build();
+        // return ResponseEntity.status(HttpStatus.FOUND)
+        //         .location(URI.create("/payment-return"))
+        //         .build();
+        return ResponseEntity.ok("ok");
     }
 
-    @GetMapping("/payment-return")
-    public ResponseEntity<Map<String, String>> getPaymentReturn() {
+    // @GetMapping("/payment-return")
+    // public ResponseEntity<Map<String, String>> getPaymentReturn() {
+    //     Map<String, String> paymentReturn = Map.of("message", "Payment creation was successful. You are redirected to the order page.");
+    //     return ResponseEntity.ok(paymentReturn);
+    // }
+
+    @RequestMapping(value = "/payment-return", method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity<Void> returnAfterPayment(@RequestParam(required = false) String token) {
+        URI redirectUri = URI.create("http://localhost:8009/return");
+        return ResponseEntity.status(302).location(redirectUri).build();
+    }
+
+    @GetMapping("/return")
+    public ResponseEntity<Map<String, String>> getReturnPage() {
         Map<String, String> paymentReturn = Map.of("message", "Payment creation was successful. You are redirected to the order page.");
         return ResponseEntity.ok(paymentReturn);
     }
