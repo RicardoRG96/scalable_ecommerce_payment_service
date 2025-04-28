@@ -5,7 +5,6 @@ import static com.ricardo.scalable.ecommerce.platform.libs_common.validation.Req
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.OrderNotFoundException;
+import com.ricardo.scalable.ecommerce.platform.payment_service.exception.PaymentDetailNotFoundException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
 import com.ricardo.scalable.ecommerce.platform.payment_service.services.PaymentDetailService;
@@ -38,73 +38,78 @@ public class PaymentDetailController {
 
     @GetMapping("/{id}")
     public ResponseEntity<PaymentDetail> getPaymentDetailById(@PathVariable Long id) {
-        Optional<PaymentDetail> paymentDetail = paymentDetailService.findById(id);
-        if (paymentDetail.isPresent()) {
-            return ResponseEntity.ok(paymentDetail.orElseThrow());
-        }
-        return ResponseEntity.notFound().build();
+        PaymentDetail paymentDetail = paymentDetailService.findById(id)
+                .orElseThrow(() -> new PaymentDetailNotFoundException("El detalle del pago no existe"));
+        
+        return ResponseEntity.ok(paymentDetail);
     }
 
     @GetMapping("/order/{orderId}")
     public ResponseEntity<PaymentDetail> getPaymentDetailByOrderId(@PathVariable Long orderId) {
-        Optional<PaymentDetail> paymentDetail = paymentDetailService.findByOrderId(orderId);
-        if (paymentDetail.isPresent()) {
-            return ResponseEntity.ok(paymentDetail.orElseThrow());
-        }
-        return ResponseEntity.notFound().build();
+        PaymentDetail paymentDetail = paymentDetailService.findByOrderId(orderId)
+                .orElseThrow(() -> new PaymentDetailNotFoundException("No existen detalles de pago para esta orden"));
+        
+        return ResponseEntity.ok(paymentDetail);
     }
 
     @GetMapping("/currency/{currency}")
     public ResponseEntity<List<PaymentDetail>> getPaymentDetailByCurrency(@PathVariable String currency) {
-        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByCurrency(currency);
-        boolean isEmpty = paymentDetail.orElseThrow().isEmpty();
+        List<PaymentDetail> paymentDetail = paymentDetailService.findByCurrency(currency)
+                .orElseThrow(() -> new PaymentDetailNotFoundException("No existen detalles de pago para esta moneda"));
 
-        if (paymentDetail.isPresent() && !isEmpty) {
-            return ResponseEntity.ok(paymentDetail.orElseThrow());
+        boolean isEmpty = paymentDetail.isEmpty();
+
+        if (isEmpty) {
+            throw new PaymentDetailNotFoundException("No existen detalles de pago para esta moneda");
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(paymentDetail);
     }
 
     @GetMapping("/provider/{provider}")
     public ResponseEntity<List<PaymentDetail>> getPaymentDetailByProvider(@PathVariable String provider) {
-        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByProvider(provider);
-        boolean isEmpty = paymentDetail.orElseThrow().isEmpty();
+        List<PaymentDetail> paymentDetail = paymentDetailService.findByProvider(provider)
+                .orElseThrow(() -> new PaymentDetailNotFoundException("No se encontraron registros con este proveedor de pago"));
 
-        if (paymentDetail.isPresent() && !isEmpty) {
-            return ResponseEntity.ok(paymentDetail.orElseThrow());
+        boolean isEmpty = paymentDetail.isEmpty();
+
+        if (isEmpty) {
+            throw new PaymentDetailNotFoundException("No se encontraron registros con este proveedor de pago");
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(paymentDetail);
     }
 
     @GetMapping("/paymentMethod/{paymentMethod}")
     public ResponseEntity<List<PaymentDetail>> getPaymentDetailByPaymentMethod(@PathVariable String paymentMethod) {
-        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByPaymentMethod(paymentMethod);
-        boolean isEmpty = paymentDetail.orElseThrow().isEmpty();
+        List<PaymentDetail> paymentDetail = paymentDetailService.findByPaymentMethod(paymentMethod)
+                .orElseThrow(() -> new PaymentDetailNotFoundException("No se encontraron registros con este metodo de pago"));
 
-        if (paymentDetail.isPresent() && !isEmpty) {
-            return ResponseEntity.ok(paymentDetail.orElseThrow());
+        boolean isEmpty = paymentDetail.isEmpty();
+
+        if (isEmpty) {
+            throw new PaymentDetailNotFoundException("No se encontraron registros con este metodo de pago");
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(paymentDetail);
     }
 
     @GetMapping("/transactionId/{transactionId}")
     public ResponseEntity<PaymentDetail> getPaymentDetailByTransactionId(@PathVariable String transactionId) {
-        Optional<PaymentDetail> paymentDetail = paymentDetailService.findByTransactionId(transactionId);
-        if (paymentDetail.isPresent()) {
-            return ResponseEntity.ok(paymentDetail.orElseThrow());
-        }
-        return ResponseEntity.notFound().build();
+        PaymentDetail paymentDetail = paymentDetailService.findByTransactionId(transactionId)
+                .orElseThrow(() -> new PaymentDetailNotFoundException("No se encontraron registros con este ID de transacción"));
+
+        return ResponseEntity.ok(paymentDetail);
     }
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<PaymentDetail>> getPaymentDetailByStatus(@PathVariable String status) {
-        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByStatus(status);
-        boolean isEmpty = paymentDetail.orElseThrow().isEmpty();
+        List<PaymentDetail> paymentDetail = paymentDetailService.findByStatus(status)
+                .orElseThrow(() -> new PaymentDetailNotFoundException("No se encontraron registros con este estado de pago"));
 
-        if (paymentDetail.isPresent() && !isEmpty) {
-            return ResponseEntity.ok(paymentDetail.orElseThrow());
+        boolean isEmpty = paymentDetail.isEmpty();
+
+        if (isEmpty) {
+            throw new PaymentDetailNotFoundException("No se encontraron registros con este estado de pago");
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(paymentDetail);
     }
 
     @GetMapping("/return")
@@ -153,12 +158,11 @@ public class PaymentDetailController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePaymentDetail(@PathVariable Long id) {
-        Optional<PaymentDetail> paymentDetail = paymentDetailService.findById(id);
-        if (paymentDetail.isPresent()) {
-            paymentDetailService.delete(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        paymentDetailService.findById(id)
+                .orElseThrow(() -> new PaymentDetailNotFoundException("El detalle del pago no existe"));
+
+        paymentDetailService.delete(id);
+        return ResponseEntity.noContent().build();
     }
     
 }

@@ -50,4 +50,17 @@ public class GlobalExceptionHandler {
                 .body(errorBody);
     }
 
+    @ExceptionHandler(PaymentDetailNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlePaymentDetailNotFoundException(PaymentDetailNotFoundException ex) {
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("error", "Detalle de pago no encontrado");
+        errorBody.put("timestamp", LocalDateTime.now());
+        errorBody.put("message", ex.getMessage());
+        errorBody.put("status", HttpStatus.NOT_FOUND.value());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorBody);
+    }
+
 }
