@@ -107,27 +107,6 @@ public class PaymentDetailController {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/payment-confirmation")
-    public ResponseEntity<String> confirmPayment(@RequestParam String token) {
-        paymentDetailService.confirmPayment(token);
-        // return ResponseEntity.status(HttpStatus.FOUND)
-        //         .location(URI.create("/payment-return"))
-        //         .build();
-        return ResponseEntity.ok("ok");
-    }
-
-    // @GetMapping("/payment-return")
-    // public ResponseEntity<Map<String, String>> getPaymentReturn() {
-    //     Map<String, String> paymentReturn = Map.of("message", "Payment creation was successful. You are redirected to the order page.");
-    //     return ResponseEntity.ok(paymentReturn);
-    // }
-
-    @RequestMapping(value = "/payment-return", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<Void> returnAfterPayment(@RequestParam(required = false) String token) {
-        URI redirectUri = URI.create("http://localhost:8009/return");
-        return ResponseEntity.status(302).location(redirectUri).build();
-    }
-
     @GetMapping("/return")
     public ResponseEntity<Map<String, String>> getReturnPage() {
         Map<String, String> paymentReturn = Map.of("message", "Payment creation was successful. You are redirected to the order page.");
@@ -151,13 +130,25 @@ public class PaymentDetailController {
         String paymentLink = paymentDetailService.createPaymentAndGetRedirectUrl(paymentDetail)
                 .orElseThrow(() -> new OrderNotFoundException("La orden no existe"));
 
-        // if (paymentLink.isPresent()) {
-        //     return ResponseEntity.status(HttpStatus.CREATED).body(savedPaymentDetail.orElseThrow());
-        // }
-        // return ResponseEntity.notFound().build();
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(paymentLink))
                 .build();
+    }
+
+    @PostMapping("/payment-confirmation")
+    public ResponseEntity<Void> confirmPayment(@RequestParam String token) {
+        try {
+            paymentDetailService.confirmPayment(token);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @RequestMapping(value = "/payment-return", method = {RequestMethod.GET, RequestMethod.POST})
+    public ResponseEntity<Void> returnAfterPayment(@RequestParam(required = false) String token) {
+        URI redirectUri = URI.create("http://localhost:8009/return");
+        return ResponseEntity.status(302).location(redirectUri).build();
     }
 
     @DeleteMapping("/{id}")

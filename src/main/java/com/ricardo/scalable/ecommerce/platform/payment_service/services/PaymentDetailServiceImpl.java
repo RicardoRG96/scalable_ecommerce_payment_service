@@ -16,6 +16,8 @@ import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.Pa
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.OrderRepository;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.PaymentDetailRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class PaymentDetailServiceImpl implements PaymentDetailService {
 
@@ -69,6 +71,7 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
     }
 
     @Override
+    @Transactional
     public Optional<String> createPaymentAndGetRedirectUrl(PaymentRequest paymentDetail) {
         Optional<Order> orderOptional = orderRepository.findById(paymentDetail.getOrderId());
         if (orderOptional.isPresent()) {
@@ -90,6 +93,7 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
     }
 
     @Override
+    @Transactional
     public void confirmPayment(String token) {
         String status = paymentGateway.getPaymentStatus(token);
         String paymentMethod = paymentGateway.getPaymentMethod(token);
@@ -104,6 +108,7 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         paymentDetailRepository.deleteById(id);
     }
