@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.ricardo.scalable.ecommerce.platform.libs_common.entities.Order;
-import com.ricardo.scalable.ecommerce.platform.libs_common.enums.PaymentStatus;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.PaymentStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
