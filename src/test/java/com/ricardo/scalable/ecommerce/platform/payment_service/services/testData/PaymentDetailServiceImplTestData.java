@@ -100,7 +100,7 @@ public class PaymentDetailServiceImplTestData {
 
     public static Optional<PaymentDetail> createPaymentDetail005() {
         PaymentDetail paymentDetail = new PaymentDetail();
-        Order order = createOrder001().orElseThrow();
+        Order order = createOrder005().orElseThrow();
 
         paymentDetail.setId(5L);
         paymentDetail.setOrder(order);

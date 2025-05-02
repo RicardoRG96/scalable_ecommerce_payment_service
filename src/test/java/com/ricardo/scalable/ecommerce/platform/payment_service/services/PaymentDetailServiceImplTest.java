@@ -48,7 +48,41 @@ public class PaymentDetailServiceImplTest {
             () -> assertEquals("TXN1234567890", paymentDetail.orElseThrow().getTransactionId(), "PaymentDetail transaction ID should match"),
             () -> assertEquals(PaymentStatus.fromCode(2), paymentDetail.orElseThrow().getStatus(), "PaymentDetail status should match")
         );
-    
+    }
+
+    @Test
+    void findById_whenPaymentDetailDoesNotExist_thenReturnEmpty() {
+        when(paymentDetailRepository.findById(100L)).thenReturn(Optional.empty());
+
+        Optional<PaymentDetail> paymentDetail = paymentDetailService.findById(100L);
+
+        assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
+    }
+
+    @Test
+    void findByOrderId_whenPaymentDetailExists_thenReturnPaymentDetail() {
+        when(paymentDetailRepository.findByOrderId(1L)).thenReturn(createPaymentDetail001());
+
+        Optional<PaymentDetail> paymentDetail = paymentDetailService.findByOrderId(1L);
+
+        assertAll(
+            () -> assertTrue(paymentDetail.isPresent(), "PaymentDetail should be present"),
+            () -> assertEquals(1L, paymentDetail.orElseThrow().getId(), "PaymentDetail ID should match"),
+            () -> assertEquals("CLP", paymentDetail.orElseThrow().getCurrency(), "PaymentDetail currency should match"),
+            () -> assertEquals("FLOW", paymentDetail.orElseThrow().getProvider(), "PaymentDetail provider should match"),
+            () -> assertEquals("WEBPAY", paymentDetail.orElseThrow().getPaymentMethod(), "PaymentDetail payment method should match"),
+            () -> assertEquals("TXN1234567890", paymentDetail.orElseThrow().getTransactionId(), "PaymentDetail transaction ID should match"),
+            () -> assertEquals(PaymentStatus.fromCode(2), paymentDetail.orElseThrow().getStatus(), "PaymentDetail status should match")
+        );
+    }
+
+    @Test
+    void findByOrderId_whenPaymentDetailDoesNotExist_thenReturnEmpty() {
+        when(paymentDetailRepository.findByOrderId(100L)).thenReturn(Optional.empty());
+
+        Optional<PaymentDetail> paymentDetail = paymentDetailService.findByOrderId(100L);
+
+        assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
     }
 
 }
