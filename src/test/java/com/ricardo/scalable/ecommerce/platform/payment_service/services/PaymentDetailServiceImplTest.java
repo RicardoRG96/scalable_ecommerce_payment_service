@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.ricardo.scalable.ecommerce.platform.payment_service.gateway.PaymentGateway;
@@ -81,6 +82,32 @@ public class PaymentDetailServiceImplTest {
         when(paymentDetailRepository.findByOrderId(100L)).thenReturn(Optional.empty());
 
         Optional<PaymentDetail> paymentDetail = paymentDetailService.findByOrderId(100L);
+
+        assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
+    }
+
+    @Test
+    void findByCurrency_whenPaymentDetailExists_thenReturnPaymentDetail() {
+        when(paymentDetailRepository.findByCurrency("CLP")).thenReturn(Optional.of(createListOfPaymentDetails()));
+
+        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByCurrency("CLP");
+
+        assertAll(
+            () -> assertTrue(paymentDetail.isPresent(), "PaymentDetail should be present"),
+            () -> assertEquals(5, paymentDetail.orElseThrow().size()),
+            () -> assertEquals(1L, paymentDetail.orElseThrow().get(0).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals(2L, paymentDetail.orElseThrow().get(1).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals(3L, paymentDetail.orElseThrow().get(2).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals(4L, paymentDetail.orElseThrow().get(3).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals(5L, paymentDetail.orElseThrow().get(4).getId(), "PaymentDetail ID should match")
+        );
+    }
+
+    @Test
+    void findByCurrency_whenPaymentDetailDoesNotExist_thenReturnEmpty() {
+        when(paymentDetailRepository.findByCurrency("USD")).thenReturn(Optional.empty());
+
+        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByCurrency("USD");
 
         assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
     }
