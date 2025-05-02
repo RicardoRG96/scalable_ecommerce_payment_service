@@ -215,4 +215,22 @@ public class PaymentDetailServiceImplTest {
         assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
     }
 
+    @Test
+    void findAll_whenPaymentDetailExists_thenReturnAllPaymentDetails() {
+        when(paymentDetailRepository.findAll()).thenReturn(createListOfPaymentDetails());
+
+        List<PaymentDetail> paymentDetails = paymentDetailService.findAll();
+
+        assertEquals(5, paymentDetails.size(), "Should return all PaymentDetails");
+    }
+
+    @Test
+    void findAll_whenNoPaymentDetailExists_thenReturnEmptyList() {
+        when(paymentDetailRepository.findAll()).thenReturn(List.of());
+
+        List<PaymentDetail> paymentDetails = paymentDetailService.findAll();
+
+        assertTrue(paymentDetails.isEmpty(), "Should return empty list of PaymentDetails");
+    }
+
 }
