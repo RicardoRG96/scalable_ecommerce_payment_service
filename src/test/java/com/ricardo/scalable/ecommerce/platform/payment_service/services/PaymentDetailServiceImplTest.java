@@ -191,4 +191,28 @@ public class PaymentDetailServiceImplTest {
         assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
     }
 
+    @Test
+    void findByStatus_whenPaymentDetailExists_thenReturnPaymentDetail() {
+        when(paymentDetailRepository.findByStatus("COMPLETED")).thenReturn(createListOfPaymentDetailByPaymentStatus());
+
+        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByStatus("COMPLETED");
+
+        assertAll(
+            () -> assertTrue(paymentDetail.isPresent(), "PaymentDetail should be present"),
+            () -> assertEquals(3, paymentDetail.orElseThrow().size()),
+            () -> assertEquals(1L, paymentDetail.orElseThrow().get(0).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals(2L, paymentDetail.orElseThrow().get(1).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals(3L, paymentDetail.orElseThrow().get(2).getId(), "PaymentDetail ID should match")
+        );
+    }
+
+    @Test
+    void findByStatus_whenPaymentDetailDoesNotExist_thenReturnEmpty() {
+        when(paymentDetailRepository.findByStatus("PENDING")).thenReturn(Optional.empty());
+
+        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByStatus("PENDING");
+
+        assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
+    }
+
 }
