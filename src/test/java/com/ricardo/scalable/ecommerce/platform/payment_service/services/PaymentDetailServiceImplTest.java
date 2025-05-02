@@ -165,4 +165,30 @@ public class PaymentDetailServiceImplTest {
         assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
     }
 
+    @Test
+    void findByTransactionId_whenPaymentDetailExists_thenReturnPaymentDetail() {
+        when(paymentDetailRepository.findByTransactionId("TXN1234567890")).thenReturn(createPaymentDetail001());
+
+        Optional<PaymentDetail> paymentDetail = paymentDetailService.findByTransactionId("TXN1234567890");
+
+        assertAll(
+            () -> assertTrue(paymentDetail.isPresent(), "PaymentDetail should be present"),
+            () -> assertEquals(1L, paymentDetail.orElseThrow().getId(), "PaymentDetail ID should match"),
+            () -> assertEquals("CLP", paymentDetail.orElseThrow().getCurrency(), "PaymentDetail currency should match"),
+            () -> assertEquals("FLOW", paymentDetail.orElseThrow().getProvider(), "PaymentDetail provider should match"),
+            () -> assertEquals("WEBPAY", paymentDetail.orElseThrow().getPaymentMethod(), "PaymentDetail payment method should match"),
+            () -> assertEquals("TXN1234567890", paymentDetail.orElseThrow().getTransactionId(), "PaymentDetail transaction ID should match"),
+            () -> assertEquals(PaymentStatus.fromCode(2), paymentDetail.orElseThrow().getStatus(), "PaymentDetail status should match")
+        );
+    }
+
+    @Test
+    void findByTransactionId_whenPaymentDetailDoesNotExist_thenReturnEmpty() {
+        when(paymentDetailRepository.findByTransactionId("TXN0000000000")).thenReturn(Optional.empty());
+
+        Optional<PaymentDetail> paymentDetail = paymentDetailService.findByTransactionId("TXN0000000000");
+
+        assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
+    }
+
 }
