@@ -112,4 +112,30 @@ public class PaymentDetailServiceImplTest {
         assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
     }
 
+    @Test
+    void findByProvider_whenPaymentDetailExists_thenReturnPaymentDetail() {
+        when(paymentDetailRepository.findByProvider("FLOW")).thenReturn(Optional.of(createListOfPaymentDetails()));
+
+        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByProvider("FLOW");
+
+        assertAll(
+            () -> assertTrue(paymentDetail.isPresent(), "PaymentDetail should be present"),
+            () -> assertEquals(5, paymentDetail.orElseThrow().size()),
+            () -> assertEquals(1L, paymentDetail.orElseThrow().get(0).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals(2L, paymentDetail.orElseThrow().get(1).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals(3L, paymentDetail.orElseThrow().get(2).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals(4L, paymentDetail.orElseThrow().get(3).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals(5L, paymentDetail.orElseThrow().get(4).getId(), "PaymentDetail ID should match")
+        );
+    }
+
+    @Test
+    void findByProvider_whenPaymentDetailDoesNotExist_thenReturnEmpty() {
+        when(paymentDetailRepository.findByProvider("STRIPE")).thenReturn(Optional.empty());
+
+        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByProvider("STRIPE");
+
+        assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
+    }
+
 }
