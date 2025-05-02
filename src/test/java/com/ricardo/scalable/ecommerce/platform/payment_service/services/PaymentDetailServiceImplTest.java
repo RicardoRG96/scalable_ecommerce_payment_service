@@ -138,4 +138,31 @@ public class PaymentDetailServiceImplTest {
         assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
     }
 
+    @Test
+    void findByPaymentMethod_whenPaymentDetailExists_thenReturnPaymentDetail() {
+        when(paymentDetailRepository.findByPaymentMethod("WEBPAY")).thenReturn(createListOfPaymentDetailByPaymentMethod());
+
+        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByPaymentMethod("WEBPAY");
+
+        assertAll(
+            () -> assertTrue(paymentDetail.isPresent(), "PaymentDetail should be present"),
+            () -> assertEquals(2, paymentDetail.orElseThrow().size()),
+            () -> assertEquals(1L, paymentDetail.orElseThrow().get(0).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals(2L, paymentDetail.orElseThrow().get(1).getId(), "PaymentDetail ID should match"),
+            () -> assertEquals("TXN1234567890", paymentDetail.orElseThrow().get(0).getTransactionId(),
+                "PaymentDetail transaction ID should match"),
+            () -> assertEquals("TXN0987654321", paymentDetail.orElseThrow().get(1).getTransactionId(),
+                 "PaymentDetail transaction ID should match")
+        );
+    }
+
+    @Test
+    void findByPaymentMethod_whenPaymentDetailDoesNotExist_thenReturnEmpty() {
+        when(paymentDetailRepository.findByPaymentMethod("CREDIT_CARD")).thenReturn(Optional.empty());
+
+        Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByPaymentMethod("CREDIT_CARD");
+
+        assertFalse(paymentDetail.isPresent(), "PaymentDetail should not be present");
+    }
+
 }
