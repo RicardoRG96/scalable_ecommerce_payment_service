@@ -194,6 +194,59 @@ public class PaymentDetailControllerTest {
     }
 
     @Test
+    @Order(7)
+    void getPaymentDetailByProvider_whenPaymentDetailExists_thenReturn200AndPaymentDetails() {
+        client.get()
+            .uri("/provider/FLOW")
+            .exchange()
+            .expectStatus().isOk()
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody()
+            .consumeWith(res -> {
+                try {
+                    JsonNode json = objectMapper.readTree(res.getResponseBody());
+                    assertAll(
+                        () -> assertNotNull(json),
+                        () -> assertTrue(json.isArray()),
+                        () -> assertEquals(6, json.size()),
+                        () -> assertEquals(1, json.get(0).path("id").asInt()),
+                        () -> assertEquals(2, json.get(1).path("id").asInt()),
+                        () -> assertEquals(3, json.get(2).path("id").asInt()),
+                        () -> assertEquals(4, json.get(3).path("id").asInt()),
+                        () -> assertEquals(5, json.get(4).path("id").asInt()),
+                        () -> assertEquals(6, json.get(5).path("id").asInt())
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+    }
+
+    @Test
+    @Order(8)
+    void getPaymentDetailByProvider_whenPaymentDetailDoesNotExist_thenReturn404AndErrorMessage() {
+        client.get()
+            .uri("/provider/XYZ")
+            .exchange()
+            .expectStatus().isNotFound()
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody()
+            .consumeWith(res -> {
+                try {
+                    JsonNode json = objectMapper.readTree(res.getResponseBody());
+                    assertAll(
+                        () -> assertNotNull(json),
+                        () -> assertEquals("Detalle de pago no encontrado", json.path("error").asText()),
+                        () -> assertEquals("No se encontraron registros con este proveedor de pago", json.path("message").asText()),
+                        () -> assertEquals(404, json.path("status").asInt())
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+    }
+
+    @Test
     void testProfile() {
         String[] activeProfiles = env.getActiveProfiles();
         assertArrayEquals(new String[] { "test" }, activeProfiles);
