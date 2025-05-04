@@ -14,10 +14,12 @@ import java.util.Optional;
 
 import com.ricardo.scalable.ecommerce.platform.payment_service.gateway.PaymentGateway;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.PaymentStatus;
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.OrderRepository;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.PaymentDetailRepository;
 import static com.ricardo.scalable.ecommerce.platform.payment_service.services.testData.PaymentDetailServiceImplTestData.*;
+import static com.ricardo.scalable.ecommerce.platform.payment_service.services.testData.utils.OrderTestData.*;
 
 @SpringBootTest
 public class PaymentDetailServiceImplTest {
@@ -231,6 +233,30 @@ public class PaymentDetailServiceImplTest {
         List<PaymentDetail> paymentDetails = paymentDetailService.findAll();
 
         assertTrue(paymentDetails.isEmpty(), "Should return empty list of PaymentDetails");
+    }
+
+    @Test
+    void createPaymentAndGetRedirectUrl_whenPaymentDetailExists_thenReturnRedirectUrl() {
+        when(orderRepository.findById(6L)).thenReturn(createOrder006());
+        when(paymentGateway.processPayment(any())).thenReturn(createPaymentResponse());
+        when(paymentDetailRepository.save(any(PaymentDetail.class))).thenReturn(getPaymentDetailCreated().orElseThrow());
+
+        Optional<String> redirectUrl = paymentDetailService.createPaymentAndGetRedirectUrl(createPaymentRequest());
+
+        assertAll(
+            () -> assertTrue(redirectUrl.isPresent(), "Redirect URL should be present"),
+            () -> assertEquals("https://payment-link.com/transaction?token=TXN1234567890", redirectUrl.orElseThrow(), 
+                "Redirect URL should match")
+        );
+    }
+
+    @Test
+    void createPaymentAndGetRedirectUrl_whenOrderDoesNotExist_thenReturnEmpty() {
+        when(orderRepository.findById(100L)).thenReturn(Optional.empty());
+
+        Optional<String> redirectUrl = paymentDetailService.createPaymentAndGetRedirectUrl(createPaymentRequest());
+
+        assertFalse(redirectUrl.isPresent(), "Redirect URL should not be present");
     }
 
 }

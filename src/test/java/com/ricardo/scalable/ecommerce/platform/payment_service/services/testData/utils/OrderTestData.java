@@ -22,8 +22,9 @@ public class OrderTestData {
 		Order order3 = createOrder003().orElseThrow();
 		Order order4 = createOrder004().orElseThrow();
 		Order order5 = createOrder005().orElseThrow();
+		Order order6 = createOrder006().orElseThrow();
 
-		return List.of(order1, order2, order3, order4, order5);
+		return List.of(order1, order2, order3, order4, order5, order6);
 	}
 
 	public static Optional<Order> createOrder001() {
