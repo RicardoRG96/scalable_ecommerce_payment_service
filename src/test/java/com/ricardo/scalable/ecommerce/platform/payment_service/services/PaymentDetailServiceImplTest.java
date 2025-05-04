@@ -269,4 +269,13 @@ public class PaymentDetailServiceImplTest {
         verify(paymentDetailRepository, times(1)).save(any(PaymentDetail.class));
     }
 
+    @Test
+    void delete_whenPaymentDetailExists_thenDeletePaymentDetail() {
+        when(paymentDetailRepository.findById(1L)).thenReturn(createPaymentDetail001());
+
+        paymentDetailService.delete(1L);
+
+        verify(paymentDetailRepository, times(1)).deleteById(1L);
+    }
+
 }
