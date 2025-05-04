@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
+import com.ricardo.scalable.ecommerce.platform.payment_service.model.PaymentStatus;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
 
 public interface PaymentDetailRepository extends CrudRepository<PaymentDetail, Long> {
@@ -19,6 +20,6 @@ public interface PaymentDetailRepository extends CrudRepository<PaymentDetail, L
 
     Optional<PaymentDetail> findByTransactionId(String transactionId);
 
-    Optional<List<PaymentDetail>> findByStatus(String status);
+    Optional<List<PaymentDetail>> findByStatus(PaymentStatus status);
 
 }

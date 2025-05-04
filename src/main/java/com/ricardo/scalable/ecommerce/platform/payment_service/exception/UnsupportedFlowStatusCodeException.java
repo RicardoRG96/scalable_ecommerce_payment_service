@@ -6,4 +6,8 @@ public class UnsupportedFlowStatusCodeException extends RuntimeException {
         super("Código de estado FLOW no soportado: " + code);
     }
 
+    public UnsupportedFlowStatusCodeException(String description) {
+        super("Descripción de estado FLOW no soportada: " + description);
+    }
+
 }

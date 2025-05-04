@@ -194,7 +194,7 @@ public class PaymentDetailServiceImplTest {
 
     @Test
     void findByStatus_whenPaymentDetailExists_thenReturnPaymentDetail() {
-        when(paymentDetailRepository.findByStatus("COMPLETED")).thenReturn(createListOfPaymentDetailByPaymentStatus());
+        when(paymentDetailRepository.findByStatus(PaymentStatus.fromDescription("COMPLETED"))).thenReturn(createListOfPaymentDetailByPaymentStatus());
 
         Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByStatus("COMPLETED");
 
@@ -209,7 +209,7 @@ public class PaymentDetailServiceImplTest {
 
     @Test
     void findByStatus_whenPaymentDetailDoesNotExist_thenReturnEmpty() {
-        when(paymentDetailRepository.findByStatus("PENDING")).thenReturn(Optional.empty());
+        when(paymentDetailRepository.findByStatus(PaymentStatus.fromDescription("PENDING"))).thenReturn(Optional.empty());
 
         Optional<List<PaymentDetail>> paymentDetail = paymentDetailService.findByStatus("PENDING");
 

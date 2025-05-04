@@ -62,7 +62,8 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
 
     @Override
     public Optional<List<PaymentDetail>> findByStatus(String status) {
-        return paymentDetailRepository.findByStatus(status);
+        PaymentStatus paymentStatus = PaymentStatus.fromDescription(status);
+        return paymentDetailRepository.findByStatus(paymentStatus);
     }
 
     @Override

@@ -38,4 +38,11 @@ public enum PaymentStatus {
             .orElseThrow(() -> new UnsupportedFlowStatusCodeException(code));
     }
 
+    public static PaymentStatus fromDescription(String description) {
+        return Stream.of(values())
+            .filter(status -> status.description.equalsIgnoreCase(description))
+            .findFirst()
+            .orElseThrow(() -> new UnsupportedFlowStatusCodeException(description));
+    }
+
 }
