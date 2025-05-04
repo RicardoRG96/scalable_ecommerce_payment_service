@@ -65,6 +65,7 @@ public class PaymentDetailControllerTest {
     }
 
     @Test
+    @Order(2)
     void getPaymentDetailById_whenPaymentDetailDoesNotExist_thenReturn404AndErrorMessage() {
         client.get()
             .uri("/9999")
@@ -78,6 +79,59 @@ public class PaymentDetailControllerTest {
                     assertAll(
                         () -> assertNotNull(json),
                         () -> assertEquals("Detalle de pago no encontrado", json.path("error").asText()),
+                        () -> assertEquals("El detalle del pago no existe", json.path("message").asText()),
+                        () -> assertEquals(404, json.path("status").asInt())
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+    }
+
+    @Test
+    @Order(3)
+    void getPaymentDetailByOrderId_whenPaymentDetailExists_thenReturn200AndPaymentDetail() {
+        client.get()
+            .uri("/order/2")
+            .exchange()
+            .expectStatus().isOk()
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody()
+            .consumeWith(res -> {
+                try {
+                    JsonNode json = objectMapper.readTree(res.getResponseBody());
+                    assertAll(
+                        () -> assertNotNull(json),
+                        () -> assertEquals(2, json.path("id").asInt()),
+                        () -> assertEquals(89990, json.path("amount").asInt()),
+                        () -> assertEquals("CLP", json.path("currency").asText()),
+                        () -> assertEquals("WEBPAY", json.path("paymentMethod").asText()),
+                        () -> assertEquals("FLOW", json.path("provider").asText()),
+                        () -> assertEquals("TXN658541", json.path("transactionId").asText()),
+                        () -> assertEquals("COMPLETED", json.path("status").asText())  
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+    }
+
+    @Test
+    @Order(4)
+    void getPaymentDetailByOrderId_whenPaymentDetailDoesNotExist_thenReturn404AndErrorMessage() {
+        client.get()
+            .uri("/order/9999")
+            .exchange()
+            .expectStatus().isNotFound()
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody()
+            .consumeWith(res -> {
+                try {
+                    JsonNode json = objectMapper.readTree(res.getResponseBody());
+                    assertAll(
+                        () -> assertNotNull(json),
+                        () -> assertEquals("Detalle de pago no encontrado", json.path("error").asText()),
+                        () -> assertEquals("No existen detalles de pago para esta orden", json.path("message").asText()),
                         () -> assertEquals(404, json.path("status").asInt())
                     );
                 } catch (Exception e) {
