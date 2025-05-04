@@ -14,7 +14,6 @@ import java.util.Optional;
 
 import com.ricardo.scalable.ecommerce.platform.payment_service.gateway.PaymentGateway;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.PaymentStatus;
-import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.OrderRepository;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.PaymentDetailRepository;
@@ -257,6 +256,17 @@ public class PaymentDetailServiceImplTest {
         Optional<String> redirectUrl = paymentDetailService.createPaymentAndGetRedirectUrl(createPaymentRequest());
 
         assertFalse(redirectUrl.isPresent(), "Redirect URL should not be present");
+    }
+
+    @Test
+    void confirmPayment_whenPaymentDetailExists_thenUpdatePaymentDetail() {
+        when(paymentDetailRepository.findByTransactionId("TXN1234567890")).thenReturn(createPaymentDetail001());
+        when(paymentGateway.getPaymentStatus("TXN1234567890")).thenReturn("COMPLETED");
+        when(paymentGateway.getPaymentMethod("TXN1234567890")).thenReturn("WEBPAY");
+
+        paymentDetailService.confirmPayment("TXN1234567890");
+
+        verify(paymentDetailRepository, times(1)).save(any(PaymentDetail.class));
     }
 
 }
