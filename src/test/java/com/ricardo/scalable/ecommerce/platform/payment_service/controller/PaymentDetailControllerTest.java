@@ -425,6 +425,86 @@ public class PaymentDetailControllerTest {
     }
 
     @Test
+    @Order(16)
+    void deletePaymentDetail_whenPaymentDetailExists_thenReturn204() {
+        client.delete()
+            .uri("/1")
+            .exchange()
+            .expectStatus().isNoContent();
+    }
+
+    @Test
+    @Order(17)
+    void deletePaymentDetail_whenPaymentDetailDoesNotExist_thenReturn404AndErrorMessage() {
+        client.delete()
+            .uri("/9999")
+            .exchange()
+            .expectStatus().isNotFound()
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody()
+            .consumeWith(res -> {
+                try {
+                    JsonNode json = objectMapper.readTree(res.getResponseBody());
+                    assertAll(
+                        () -> assertNotNull(json),
+                        () -> assertEquals("Detalle de pago no encontrado", json.path("error").asText()),
+                        () -> assertEquals("El detalle del pago no existe", json.path("message").asText()),
+                        () -> assertEquals(404, json.path("status").asInt())
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+    }
+
+    @Test
+    @Order(18)
+    void getPaymentDetailById_afterDeletion_thenReturn404AndErrorMessage() {
+        client.get()
+            .uri("/1")
+            .exchange()
+            .expectStatus().isNotFound()
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody()
+            .consumeWith(res -> {
+                try {
+                    JsonNode json = objectMapper.readTree(res.getResponseBody());
+                    assertAll(
+                        () -> assertNotNull(json),
+                        () -> assertEquals("Detalle de pago no encontrado", json.path("error").asText()),
+                        () -> assertEquals("El detalle del pago no existe", json.path("message").asText()),
+                        () -> assertEquals(404, json.path("status").asInt())
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+    }
+
+    @Test
+    @Order(19)
+    void getAllPaymentDetails_afterDeletion_thenReturn200AndPaymentDetails() {
+        client.get()
+            .uri("/")
+            .exchange()
+            .expectStatus().isOk()
+            .expectHeader().contentType(MediaType.APPLICATION_JSON)
+            .expectBody()
+            .consumeWith(res -> {
+                try {
+                    JsonNode json = objectMapper.readTree(res.getResponseBody());
+                    assertAll(
+                        () -> assertNotNull(json),
+                        () -> assertTrue(json.isArray()),
+                        () -> assertEquals(5, json.size())
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+    }
+
+    @Test
     void testProfile() {
         String[] activeProfiles = env.getActiveProfiles();
         assertArrayEquals(new String[] { "test" }, activeProfiles);
