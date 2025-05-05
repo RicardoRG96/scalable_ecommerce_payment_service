@@ -3,6 +3,7 @@ package com.ricardo.scalable.ecommerce.platform.payment_service.controllers;
 import static com.ricardo.scalable.ecommerce.platform.libs_common.validation.RequestBodyValidation.validation;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.OrderNotFoundException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.PaymentDetailNotFoundException;
+import com.ricardo.scalable.ecommerce.platform.payment_service.exception.UnsupportedFlowStatusCodeException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
 import com.ricardo.scalable.ecommerce.platform.payment_service.services.PaymentDetailService;
@@ -101,13 +103,18 @@ public class PaymentDetailController {
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<PaymentDetail>> getPaymentDetailByStatus(@PathVariable String status) {
-        List<PaymentDetail> paymentDetail = paymentDetailService.findByStatus(status)
+        List<PaymentDetail> paymentDetail = new ArrayList<>();
+        try {
+            paymentDetail = paymentDetailService.findByStatus(status)
                 .orElseThrow(() -> new PaymentDetailNotFoundException("No se encontraron registros con este estado de pago"));
 
-        boolean isEmpty = paymentDetail.isEmpty();
+            boolean isEmpty = paymentDetail.isEmpty();
 
-        if (isEmpty) {
-            throw new PaymentDetailNotFoundException("No se encontraron registros con este estado de pago");
+            if (isEmpty) {
+                throw new PaymentDetailNotFoundException("No se encontraron registros con este estado de pago");
+            }
+        } catch (UnsupportedFlowStatusCodeException e) {
+            throw new PaymentDetailNotFoundException(e.getMessage());
         }
         return ResponseEntity.ok(paymentDetail);
     }
