@@ -22,4 +22,6 @@ public interface PaymentDetailRepository extends CrudRepository<PaymentDetail, L
 
     Optional<List<PaymentDetail>> findByStatus(PaymentStatus status);
 
+    Optional<PaymentDetail> findFirstByOrderIdAndStatusIn(Long orderId, List<PaymentStatus> statusList);
+
 }
