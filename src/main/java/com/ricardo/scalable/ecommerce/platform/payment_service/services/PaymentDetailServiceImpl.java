@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.ricardo.scalable.ecommerce.platform.libs_common.entities.Order;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.PaymentStatus;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.FlowApiException;
+import com.ricardo.scalable.ecommerce.platform.payment_service.exception.OrderNotFoundException;
+import com.ricardo.scalable.ecommerce.platform.payment_service.exception.PaymentDetailNotFoundException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.gateway.PaymentGateway;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentResponse;
@@ -73,24 +75,35 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
 
     @Override
     @Transactional
-    public Optional<String> createPaymentAndGetRedirectUrl(PaymentRequest paymentDetail) {
-        Optional<Order> orderOptional = orderRepository.findById(paymentDetail.getOrderId());
+    public Optional<String> createPaymentAndGetRedirectUrl(PaymentRequest paymentDetailRequest) {
+        Optional<Order> orderOptional = orderRepository.findById(paymentDetailRequest.getOrderId());
         if (orderOptional.isPresent()) {
-            PaymentDetail paymentDetailToCreate = new PaymentDetail();
-            paymentDetailToCreate.setOrder(orderOptional.orElseThrow());
-            paymentDetailToCreate.setAmount(paymentDetail.getAmount());
-            paymentDetailToCreate.setCurrency(paymentDetail.getCurrency());
-            paymentDetailToCreate.setStatus(PaymentStatus.valueOf("PENDING"));
+            PaymentDetail paymentDetail = getOrCreatePaymentDetail(paymentDetailRequest.getOrderId())
+                    .orElseThrow(() -> new PaymentDetailNotFoundException("No se encontró el detalle del pago"));
+            
+            paymentDetail.setOrder(
+                orderOptional.orElseThrow(() -> new OrderNotFoundException("No se encontró la orden"))
+            );
+            paymentDetail.setAmount(paymentDetailRequest.getAmount());
+            paymentDetail.setCurrency(paymentDetailRequest.getCurrency());
+            paymentDetail.setStatus(PaymentStatus.PENDING);
 
-            PaymentResponse paymentResponse = paymentGateway.processPayment(paymentDetail);
-            paymentDetailToCreate.setProvider(paymentResponse.getProvider());
-            paymentDetailToCreate.setTransactionId(paymentResponse.getTransactionId());
+            PaymentResponse paymentResponse = paymentGateway.processPayment(paymentDetailRequest);
+            paymentDetail.setProvider(paymentResponse.getProvider());
+            paymentDetail.setTransactionId(paymentResponse.getTransactionId());
 
-            paymentDetailRepository.save(paymentDetailToCreate);
+            paymentDetailRepository.save(paymentDetail);
 
             return Optional.of(paymentResponse.getPaymentLink());
         }
         return Optional.empty();
+    }
+
+    private Optional<PaymentDetail> getOrCreatePaymentDetail(Long orderId) {
+        List<PaymentStatus> statusList = List.of(PaymentStatus.PENDING, PaymentStatus.FAILED);
+        return paymentDetailRepository
+                .findFirstByOrderIdAndStatusIn(orderId, statusList)
+                .or(() -> Optional.of(new PaymentDetail()));
     }
 
     @Override
