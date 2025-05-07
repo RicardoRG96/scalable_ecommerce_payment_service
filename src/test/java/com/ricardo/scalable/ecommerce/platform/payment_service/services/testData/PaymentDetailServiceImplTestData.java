@@ -22,8 +22,10 @@ public class PaymentDetailServiceImplTestData {
         PaymentDetail paymentDetail3 = createPaymentDetail003().orElseThrow();
         PaymentDetail paymentDetail4 = createPaymentDetail004().orElseThrow();
         PaymentDetail paymentDetail5 = createPaymentDetail005().orElseThrow();
+        PaymentDetail paymentDetail6 = createPaymentDetail006().orElseThrow();
 
-        return List.of(paymentDetail1, paymentDetail2, paymentDetail3, paymentDetail4, paymentDetail5);
+        return List.of(
+            paymentDetail1, paymentDetail2, paymentDetail3, paymentDetail4, paymentDetail5, paymentDetail6);
     }
 
     public static Optional<PaymentDetail> createPaymentDetail001() {
@@ -116,6 +118,24 @@ public class PaymentDetailServiceImplTestData {
         return Optional.of(paymentDetail);
     }
 
+    public static Optional<PaymentDetail> createPaymentDetail006() {
+        PaymentDetail paymentDetail = new PaymentDetail();
+        Order order = createOrder006().orElseThrow();
+
+        paymentDetail.setId(6L);
+        paymentDetail.setOrder(order);
+        paymentDetail.setAmount(new BigDecimal("149.99"));
+        paymentDetail.setCurrency("CLP");
+        paymentDetail.setProvider("FLOW");
+        paymentDetail.setPaymentMethod("WEBPAY");
+        paymentDetail.setTransactionId("TXN1234567890");
+        paymentDetail.setStatus(PaymentStatus.fromCode(4));
+        paymentDetail.setCreatedAt(Timestamp.from(Instant.now()));
+        paymentDetail.setUpdatedAt(Timestamp.from(Instant.now()));
+
+        return Optional.of(paymentDetail);
+    }
+
     public static Optional<List<PaymentDetail>> createListOfPaymentDetailByPaymentMethod() {
         PaymentDetail paymentDetail1 = createPaymentDetail001().orElseThrow();
         PaymentDetail paymentDetail2 = createPaymentDetail002().orElseThrow();
@@ -134,7 +154,7 @@ public class PaymentDetailServiceImplTestData {
 
     public static PaymentRequest createPaymentRequest() {
         PaymentRequest paymentRequest = new PaymentRequest();
-        paymentRequest.setOrderId(6L);
+        paymentRequest.setOrderId(7L);
         paymentRequest.setAmount(new BigDecimal("149.99"));
         paymentRequest.setCurrency("CLP");
         paymentRequest.setEmail("carla@gmail.com");
@@ -155,9 +175,9 @@ public class PaymentDetailServiceImplTestData {
 
     public static Optional<PaymentDetail> getPaymentDetailCreated() {
         PaymentDetail paymentDetail = new PaymentDetail();
-        Order order = createOrder006().orElseThrow();
+        Order order = createOrder007().orElseThrow();
 
-        paymentDetail.setId(6L);
+        paymentDetail.setId(7L);
         paymentDetail.setOrder(order);
         paymentDetail.setAmount(new BigDecimal("149.99"));
         paymentDetail.setCurrency("CLP");

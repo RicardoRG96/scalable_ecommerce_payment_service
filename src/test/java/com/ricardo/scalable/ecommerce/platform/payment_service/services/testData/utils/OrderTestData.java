@@ -130,8 +130,27 @@ public class OrderTestData {
 
 		order.setId(6L);
 		order.setUser(user);
+		order.setTotalAmount(new BigDecimal("119.99"));
+		order.setOrderStatus(OrderStatus.valueOf("REFUNDED"));
+		order.setPaymentStatus(PaymentStatus.valueOf("REFUNDED"));
+		order.setShippingAddress(shippingAddress);
+		order.setBillingAddress(billingAddress);
+		order.setCreatedAt(Timestamp.from(Instant.now()));
+		order.setUpdatedAt(Timestamp.from(Instant.now()));
+
+		return Optional.of(order);
+	}
+
+	public static Optional<Order> createOrder007() {
+		Order order = new Order();
+		User user = createUser003().orElseThrow();
+		Address shippingAddress = createAddress003().orElseThrow();
+		Address billingAddress = createAddress003().orElseThrow();
+
+		order.setId(6L);
+		order.setUser(user);
 		order.setTotalAmount(new BigDecimal("149.99"));
-		order.setOrderStatus(OrderStatus.valueOf("PAID"));
+		order.setOrderStatus(OrderStatus.valueOf("PENDING"));
 		order.setPaymentStatus(PaymentStatus.valueOf("PENDING"));
 		order.setShippingAddress(shippingAddress);
 		order.setBillingAddress(billingAddress);
