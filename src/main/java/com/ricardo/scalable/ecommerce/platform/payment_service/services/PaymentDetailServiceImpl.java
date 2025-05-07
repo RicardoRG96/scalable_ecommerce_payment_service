@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.ricardo.scalable.ecommerce.platform.libs_common.entities.Order;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.PaymentStatus;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.FlowApiException;
+import com.ricardo.scalable.ecommerce.platform.payment_service.exception.OrderAlreadyPaidException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.OrderNotFoundException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.PaymentDetailNotFoundException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.gateway.PaymentGateway;
@@ -76,6 +77,7 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
     @Override
     @Transactional
     public Optional<String> createPaymentAndGetRedirectUrl(PaymentRequest paymentDetailRequest) {
+        validateOrder(paymentDetailRequest);
         Optional<Order> orderOptional = orderRepository.findById(paymentDetailRequest.getOrderId());
         if (orderOptional.isPresent()) {
             PaymentDetail paymentDetail = getOrCreatePaymentDetail(paymentDetailRequest.getOrderId())
@@ -97,6 +99,17 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
             return Optional.of(paymentResponse.getPaymentLink());
         }
         return Optional.empty();
+    }
+
+    private void validateOrder(PaymentRequest paymentDetailRequest) {
+        Long orderId = paymentDetailRequest.getOrderId();
+        PaymentDetail paymentDetail = paymentDetailRepository.findByOrderId(orderId).orElseThrow();
+        if (paymentDetail.getStatus() == PaymentStatus.COMPLETED) {
+            throw new OrderAlreadyPaidException("La orden ya ha sido pagada");
+        }
+        if (paymentDetail.getStatus() == PaymentStatus.REFUNDED) {
+            throw new OrderAlreadyPaidException("La orden ha sido reembolsada");
+        }
     }
 
     private Optional<PaymentDetail> getOrCreatePaymentDetail(Long orderId) {
