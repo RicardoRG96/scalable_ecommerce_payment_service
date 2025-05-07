@@ -162,6 +162,36 @@ public class PaymentDetailServiceImplTestData {
         return paymentRequest;
     }
 
+    public static PaymentRequest createPaymentRequestWithOrderAlreadyPaid() {
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setOrderId(1L);
+        paymentRequest.setAmount(new BigDecimal("199.99"));
+        paymentRequest.setCurrency("CLP");
+        paymentRequest.setEmail("ricardo@gmail.com");
+
+        return paymentRequest;
+    }
+
+    public static PaymentRequest createPaymentRequestWithOrderRefunded() {
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setOrderId(6L);
+        paymentRequest.setAmount(new BigDecimal("149.99"));
+        paymentRequest.setCurrency("CLP");
+        paymentRequest.setEmail("carla@gmail.com");
+
+        return paymentRequest;
+    }
+
+    public static PaymentRequest createPaymentRequestWithOrderWithFailedPayment() {
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setOrderId(4L);
+        paymentRequest.setAmount(new BigDecimal("39.99"));
+        paymentRequest.setCurrency("CLP");
+        paymentRequest.setEmail("ricardo@gmail.com");
+
+        return paymentRequest;
+    }
+
     public static PaymentResponse createPaymentResponse() {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setTransactionId("TXN1234567890");

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.Optional;
 
+import com.ricardo.scalable.ecommerce.platform.payment_service.exception.OrderAlreadyPaidException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.gateway.PaymentGateway;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.PaymentStatus;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
@@ -236,7 +237,7 @@ public class PaymentDetailServiceImplTest {
 
     @Test
     void createPaymentAndGetRedirectUrl_whenPaymentDetailExists_thenReturnRedirectUrl() {
-        when(orderRepository.findById(6L)).thenReturn(createOrder006());
+        when(orderRepository.findById(7L)).thenReturn(createOrder007());
         when(paymentGateway.processPayment(any())).thenReturn(createPaymentResponse());
         when(paymentDetailRepository.save(any(PaymentDetail.class))).thenReturn(getPaymentDetailCreated().orElseThrow());
 
