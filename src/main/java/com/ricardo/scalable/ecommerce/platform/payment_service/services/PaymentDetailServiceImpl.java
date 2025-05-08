@@ -103,12 +103,14 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
 
     private void validateOrder(PaymentRequest paymentDetailRequest) {
         Long orderId = paymentDetailRequest.getOrderId();
-        PaymentDetail paymentDetail = paymentDetailRepository.findByOrderId(orderId).orElseThrow();
-        if (paymentDetail.getStatus() == PaymentStatus.COMPLETED) {
-            throw new OrderAlreadyPaidException("La orden ya ha sido pagada");
-        }
-        if (paymentDetail.getStatus() == PaymentStatus.REFUNDED) {
-            throw new OrderAlreadyPaidException("La orden ha sido reembolsada");
+        Optional<PaymentDetail> paymentDetail = paymentDetailRepository.findByOrderId(orderId);
+        if (paymentDetail.isPresent()) {
+            if (paymentDetail.orElseThrow().getStatus() == PaymentStatus.COMPLETED) {
+                throw new OrderAlreadyPaidException("La orden ya ha sido pagada");
+            }
+            if (paymentDetail.orElseThrow().getStatus() == PaymentStatus.REFUNDED) {
+                throw new OrderAlreadyPaidException("La orden ha sido reembolsada");
+            }
         }
     }
 

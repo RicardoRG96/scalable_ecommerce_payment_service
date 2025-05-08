@@ -96,7 +96,7 @@ public class PaymentDetailServiceImplTest {
 
         assertAll(
             () -> assertTrue(paymentDetail.isPresent(), "PaymentDetail should be present"),
-            () -> assertEquals(5, paymentDetail.orElseThrow().size()),
+            () -> assertEquals(6, paymentDetail.orElseThrow().size()),
             () -> assertEquals(1L, paymentDetail.orElseThrow().get(0).getId(), "PaymentDetail ID should match"),
             () -> assertEquals(2L, paymentDetail.orElseThrow().get(1).getId(), "PaymentDetail ID should match"),
             () -> assertEquals(3L, paymentDetail.orElseThrow().get(2).getId(), "PaymentDetail ID should match"),
@@ -122,7 +122,7 @@ public class PaymentDetailServiceImplTest {
 
         assertAll(
             () -> assertTrue(paymentDetail.isPresent(), "PaymentDetail should be present"),
-            () -> assertEquals(5, paymentDetail.orElseThrow().size()),
+            () -> assertEquals(6, paymentDetail.orElseThrow().size()),
             () -> assertEquals(1L, paymentDetail.orElseThrow().get(0).getId(), "PaymentDetail ID should match"),
             () -> assertEquals(2L, paymentDetail.orElseThrow().get(1).getId(), "PaymentDetail ID should match"),
             () -> assertEquals(3L, paymentDetail.orElseThrow().get(2).getId(), "PaymentDetail ID should match"),
@@ -223,7 +223,7 @@ public class PaymentDetailServiceImplTest {
 
         List<PaymentDetail> paymentDetails = paymentDetailService.findAll();
 
-        assertEquals(5, paymentDetails.size(), "Should return all PaymentDetails");
+        assertEquals(6, paymentDetails.size(), "Should return all PaymentDetails");
     }
 
     @Test
@@ -237,7 +237,10 @@ public class PaymentDetailServiceImplTest {
 
     @Test
     void createPaymentAndGetRedirectUrl_whenPaymentDetailExists_thenReturnRedirectUrl() {
+        when(paymentDetailRepository.findByOrderId(7L)).thenReturn(Optional.empty());
         when(orderRepository.findById(7L)).thenReturn(createOrder007());
+        when(paymentDetailRepository.findFirstByOrderIdAndStatusIn(7L, List.of(PaymentStatus.PENDING, PaymentStatus.FAILED)))
+            .thenReturn(Optional.of(new PaymentDetail()));
         when(paymentGateway.processPayment(any())).thenReturn(createPaymentResponse());
         when(paymentDetailRepository.save(any(PaymentDetail.class))).thenReturn(getPaymentDetailCreated().orElseThrow());
 
@@ -252,11 +255,52 @@ public class PaymentDetailServiceImplTest {
 
     @Test
     void createPaymentAndGetRedirectUrl_whenOrderDoesNotExist_thenReturnEmpty() {
+        when(paymentDetailRepository.findByOrderId(100L)).thenReturn(Optional.empty());
         when(orderRepository.findById(100L)).thenReturn(Optional.empty());
 
         Optional<String> redirectUrl = paymentDetailService.createPaymentAndGetRedirectUrl(createPaymentRequest());
 
         assertFalse(redirectUrl.isPresent(), "Redirect URL should not be present");
+    }
+
+    @Test
+    void createPaymentAndGetRedirectUrl_whenOrderIsAlreadyPaid_thenThrowException() {
+        when(paymentDetailRepository.findByOrderId(1L)).thenReturn(createPaymentDetail001());
+
+        assertThrows(
+            OrderAlreadyPaidException.class, 
+            () -> paymentDetailService.createPaymentAndGetRedirectUrl(createPaymentRequestWithOrderAlreadyPaid())
+        );
+    }
+
+    @Test
+    void createPaymentAndGetRedirectUrl_whenOrderIsRefunded_thenThrowException() {
+        when(paymentDetailRepository.findByOrderId(6L)).thenReturn(createPaymentDetail006());
+
+        assertThrows(
+            OrderAlreadyPaidException.class, 
+            () -> paymentDetailService.createPaymentAndGetRedirectUrl(createPaymentRequestWithOrderRefunded())
+        );
+    }
+
+    @Test
+    void createPaymentAndGetRedirectUrl_whenOrderHasFailedPayment_thenReturnRedirectUrl() {
+        when(paymentDetailRepository.findByOrderId(4L)).thenReturn(createPaymentDetail004());
+        when(orderRepository.findById(4L)).thenReturn(createOrder004());
+        when(paymentDetailRepository.findFirstByOrderIdAndStatusIn(4L, List.of(PaymentStatus.PENDING, PaymentStatus.FAILED)))
+            .thenReturn(createPaymentDetail004());
+        when(paymentGateway.processPayment(any())).thenReturn(createPaymentResponseWithOrderWithFailedPayment());
+        when(paymentDetailRepository.save(any()))
+            .thenReturn(getPaymentDetailCreatedWithOrderWithFailedPayment().orElseThrow());
+
+        Optional<String> redirectUrl = 
+                paymentDetailService.createPaymentAndGetRedirectUrl(createPaymentRequestWithOrderWithFailedPayment());
+
+        assertAll(
+            () -> assertTrue(redirectUrl.isPresent(), "Redirect URL should be present"),
+            () -> assertEquals("https://payment-link.com/transaction?token=TXN4567891230", redirectUrl.orElseThrow(), 
+                "Redirect URL should match")
+        );
     }
 
     @Test

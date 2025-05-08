@@ -203,6 +203,17 @@ public class PaymentDetailServiceImplTestData {
         return paymentResponse;
     }
 
+    public static PaymentResponse createPaymentResponseWithOrderWithFailedPayment() {
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setTransactionId("TXN4567891230");
+        paymentResponse.setStatus("PENDING");
+        paymentResponse.setProvider("FLOW");
+        paymentResponse.setMessage("Pago generado");
+        paymentResponse.setPaymentLink("https://payment-link.com/transaction?token=TXN4567891230");
+
+        return paymentResponse;
+    }
+
     public static Optional<PaymentDetail> getPaymentDetailCreated() {
         PaymentDetail paymentDetail = new PaymentDetail();
         Order order = createOrder007().orElseThrow();
@@ -212,7 +223,7 @@ public class PaymentDetailServiceImplTestData {
         paymentDetail.setAmount(new BigDecimal("149.99"));
         paymentDetail.setCurrency("CLP");
         paymentDetail.setProvider("FLOW");
-        paymentDetail.setPaymentMethod(null);
+        paymentDetail.setPaymentMethod("WEBPAY");
         paymentDetail.setTransactionId("TXN1234567890");
         paymentDetail.setStatus(PaymentStatus.fromCode(1));
         paymentDetail.setCreatedAt(Timestamp.from(Instant.now()));
@@ -220,4 +231,23 @@ public class PaymentDetailServiceImplTestData {
 
         return Optional.of(paymentDetail);
     }
+
+    public static Optional<PaymentDetail> getPaymentDetailCreatedWithOrderWithFailedPayment() {
+        PaymentDetail paymentDetail = new PaymentDetail();
+        Order order = createOrder004().orElseThrow();
+
+        paymentDetail.setId(8L);
+        paymentDetail.setOrder(order);
+        paymentDetail.setAmount(new BigDecimal("39.99"));
+        paymentDetail.setCurrency("CLP");
+        paymentDetail.setProvider("FLOW");
+        paymentDetail.setPaymentMethod("WEBPAY");
+        paymentDetail.setTransactionId("TXN4567891230");
+        paymentDetail.setStatus(PaymentStatus.fromCode(1));
+        paymentDetail.setCreatedAt(Timestamp.from(Instant.now()));
+        paymentDetail.setUpdatedAt(Timestamp.from(Instant.now()));
+
+        return Optional.of(paymentDetail);
+    }
+
 }
