@@ -8,6 +8,6 @@ public interface StockService {
 
     void verifyStock(List<OrderItem> orderItems);
 
-    void updateStockAfterPayment(List<OrderItem> orderItems);
+    void updateStockAfterPayment(List<OrderItem> orderItems, String transactionId);
 
 }
