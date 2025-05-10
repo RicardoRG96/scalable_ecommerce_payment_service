@@ -159,4 +159,11 @@ public class OrderItemTestData {
 		return Optional.of(orderItem);
 	}
 
+    public static Optional<List<OrderItem>> createListOfOrderItemByOrderId1() {
+		OrderItem orderItem1 = createOrderItem001().orElseThrow();
+		OrderItem orderItem2 = createOrderItem002().orElseThrow();
+
+		return Optional.of(List.of(orderItem1, orderItem2));
+	}
+
 }
