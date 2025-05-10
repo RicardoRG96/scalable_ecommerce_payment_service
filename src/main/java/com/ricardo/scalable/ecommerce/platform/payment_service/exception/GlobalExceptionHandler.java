@@ -105,4 +105,17 @@ public class GlobalExceptionHandler {
                 .body(errorBody);
     }
 
+    @ExceptionHandler(PaymentNotConfirmedException.class)
+    public ResponseEntity<Map<String, Object>> handlePaymentNotConfirmedException(PaymentNotConfirmedException ex) {
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("error", "Pago no confirmado");
+        errorBody.put("timestamp", LocalDateTime.now());
+        errorBody.put("message", ex.getMessage());
+        errorBody.put("status", HttpStatus.BAD_REQUEST.value());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorBody);
+    }
+
 }
