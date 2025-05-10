@@ -14,6 +14,8 @@ import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.Pa
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.PaymentDetailRepository;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.repository.ProductSkuRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class StockServiceImpl implements StockService {
 
@@ -41,16 +43,21 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
+    @Transactional
     public void updateStockAfterPayment(List<OrderItem> orderItems, String transactionId) {
         validateCompletedPayment(transactionId);
-        
+
         for (OrderItem orderItem : orderItems) {
             Long productSkuId = orderItem.getProductSku().getId();
             int quantity = orderItem.getQuantity();
 
             productSkuRepository.findById(productSkuId)
                 .ifPresentOrElse(productSku -> {
-                    productSku.setStock(productSku.getStock() - quantity);
+                    Integer newStock = productSku.getStock() - quantity;
+                    if (newStock < 0) {
+                        throw new InsufficientStockException("Not enough stock for product SKU: " + productSkuId);
+                    }
+                    productSku.setStock(newStock);
                     productSkuRepository.save(productSku);
                 }, () -> {
                     throw new ResourceNotFoundException("Product SKU not found: " + productSkuId);
