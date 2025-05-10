@@ -28,15 +28,21 @@ import com.ricardo.scalable.ecommerce.platform.payment_service.exception.Unsuppo
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.entities.PaymentDetail;
 import com.ricardo.scalable.ecommerce.platform.payment_service.services.PaymentDetailService;
+import com.ricardo.scalable.ecommerce.platform.payment_service.services.StockService;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @CrossOrigin(origins = "http://127.0.0.1:5500") // sacar esta anotacion una vez realizada las pruebas manuales
+@Slf4j
 public class PaymentDetailController {
 
     @Autowired
     private PaymentDetailService paymentDetailService;
+
+    @Autowired
+    private StockService stockService;
 
     @GetMapping("/{id}")
     public ResponseEntity<PaymentDetail> getPaymentDetailById(@PathVariable Long id) {
@@ -139,6 +145,7 @@ public class PaymentDetailController {
         if (result.hasErrors()) {
             return validation(result);
         }
+        stockService.verifyStock(paymentDetail.getOrderId());
         String paymentLink = paymentDetailService.createPaymentAndGetRedirectUrl(paymentDetail)
                 .orElseThrow(() -> new OrderNotFoundException("La orden no existe"));
 
@@ -159,6 +166,7 @@ public class PaymentDetailController {
 
     @RequestMapping(value = "/payment-return", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<Void> returnAfterPayment(@RequestParam(required = false) String token) {
+        stockService.updateStockAfterPayment(token);
         URI redirectUri = URI.create("http://localhost:8009/return");
         return ResponseEntity.status(302).location(redirectUri).build();
     }

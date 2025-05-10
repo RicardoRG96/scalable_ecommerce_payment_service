@@ -1,13 +1,9 @@
 package com.ricardo.scalable.ecommerce.platform.payment_service.services;
 
-import java.util.List;
-
-import com.ricardo.scalable.ecommerce.platform.libs_common.entities.OrderItem;
-
 public interface StockService {
 
-    void verifyStock(List<OrderItem> orderItems);
+    void verifyStock(Long orderId);
 
-    void updateStockAfterPayment(List<OrderItem> orderItems, String transactionId);
+    void updateStockAfterPayment(String transactionId);
 
 }
