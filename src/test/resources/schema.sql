@@ -124,7 +124,6 @@ CREATE TABLE IF NOT EXISTS orders (
     user_id BIGINT NOT NULL,
     total_amount DECIMAL(10,2) NOT NULL CHECK (total_amount >= 0),
     order_status VARCHAR(20) NOT NULL CHECK (order_status IN ('PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED')),
-    payment_status VARCHAR(20) NOT NULL CHECK (payment_status IN ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED')),
     shipping_address_id BIGINT NOT NULL,
     billing_address_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

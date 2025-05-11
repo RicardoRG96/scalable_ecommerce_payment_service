@@ -10,7 +10,6 @@ import com.ricardo.scalable.ecommerce.platform.libs_common.entities.Address;
 import com.ricardo.scalable.ecommerce.platform.libs_common.entities.Order;
 import com.ricardo.scalable.ecommerce.platform.libs_common.entities.User;
 import com.ricardo.scalable.ecommerce.platform.libs_common.enums.OrderStatus;
-import com.ricardo.scalable.ecommerce.platform.libs_common.enums.PaymentStatus;
 import static com.ricardo.scalable.ecommerce.platform.payment_service.services.testData.utils.AddressTestData.*;
 import static com.ricardo.scalable.ecommerce.platform.payment_service.services.testData.utils.UserTestData.*;
 
@@ -37,7 +36,6 @@ public class OrderTestData {
 		order.setUser(user);
         order.setTotalAmount(new BigDecimal("199.99"));
 		order.setOrderStatus(OrderStatus.valueOf("PENDING"));
-		order.setPaymentStatus(PaymentStatus.valueOf("PENDING"));
 		order.setShippingAddress(shippingAddress);
 		order.setBillingAddress(billingAddress);
 		order.setCreatedAt(Timestamp.from(Instant.now()));
@@ -56,7 +54,6 @@ public class OrderTestData {
 		order.setUser(user);
 		order.setTotalAmount(new BigDecimal("49.99"));
 		order.setOrderStatus(OrderStatus.valueOf("PAID"));
-		order.setPaymentStatus(PaymentStatus.valueOf("COMPLETED"));
 		order.setShippingAddress(shippingAddress);
 		order.setBillingAddress(billingAddress);
 		order.setCreatedAt(Timestamp.from(Instant.now()));
@@ -75,7 +72,6 @@ public class OrderTestData {
 		order.setUser(user);
 		order.setTotalAmount(new BigDecimal("89.99"));
 		order.setOrderStatus(OrderStatus.valueOf("SHIPPED"));
-		order.setPaymentStatus(PaymentStatus.valueOf("COMPLETED"));
 		order.setShippingAddress(shippingAddress);
 		order.setBillingAddress(billingAddress);
 		order.setCreatedAt(Timestamp.from(Instant.now()));
@@ -94,7 +90,6 @@ public class OrderTestData {
 		order.setUser(user);
 		order.setTotalAmount(new BigDecimal("39.99"));
 		order.setOrderStatus(OrderStatus.valueOf("PAID"));
-		order.setPaymentStatus(PaymentStatus.valueOf("COMPLETED"));
 		order.setShippingAddress(shippingAddress);
 		order.setBillingAddress(billingAddress);
 		order.setCreatedAt(Timestamp.from(Instant.now()));
@@ -113,7 +108,6 @@ public class OrderTestData {
 		order.setUser(user);
 		order.setTotalAmount(new BigDecimal("99.99"));
 		order.setOrderStatus(OrderStatus.valueOf("SHIPPED"));
-		order.setPaymentStatus(PaymentStatus.valueOf("COMPLETED"));
 		order.setShippingAddress(shippingAddress);
 		order.setBillingAddress(billingAddress);
 		order.setCreatedAt(Timestamp.from(Instant.now()));
@@ -132,7 +126,6 @@ public class OrderTestData {
 		order.setUser(user);
 		order.setTotalAmount(new BigDecimal("119.99"));
 		order.setOrderStatus(OrderStatus.valueOf("REFUNDED"));
-		order.setPaymentStatus(PaymentStatus.valueOf("REFUNDED"));
 		order.setShippingAddress(shippingAddress);
 		order.setBillingAddress(billingAddress);
 		order.setCreatedAt(Timestamp.from(Instant.now()));
@@ -151,7 +144,6 @@ public class OrderTestData {
 		order.setUser(user);
 		order.setTotalAmount(new BigDecimal("149.99"));
 		order.setOrderStatus(OrderStatus.valueOf("PENDING"));
-		order.setPaymentStatus(PaymentStatus.valueOf("PENDING"));
 		order.setShippingAddress(shippingAddress);
 		order.setBillingAddress(billingAddress);
 		order.setCreatedAt(Timestamp.from(Instant.now()));
