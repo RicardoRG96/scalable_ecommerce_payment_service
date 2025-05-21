@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.ricardo.scalable.ecommerce.platform.libs_common.exceptions.OrderNotFoundException;
 import com.ricardo.scalable.ecommerce.platform.libs_common.exceptions.InsufficientStockException;
 import com.ricardo.scalable.ecommerce.platform.libs_common.exceptions.ResourceNotFoundException;
 

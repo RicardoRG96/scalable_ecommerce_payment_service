@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ricardo.scalable.ecommerce.platform.payment_service.exception.OrderNotFoundException;
+import com.ricardo.scalable.ecommerce.platform.libs_common.exceptions.OrderNotFoundException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.PaymentDetailNotFoundException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.UnsupportedFlowStatusCodeException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;

@@ -10,7 +10,7 @@ import com.ricardo.scalable.ecommerce.platform.libs_common.entities.Order;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.PaymentStatus;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.FlowApiException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.OrderAlreadyPaidException;
-import com.ricardo.scalable.ecommerce.platform.payment_service.exception.OrderNotFoundException;
+import com.ricardo.scalable.ecommerce.platform.libs_common.exceptions.OrderNotFoundException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.PaymentDetailNotFoundException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.gateway.PaymentGateway;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.dto.PaymentRequest;
