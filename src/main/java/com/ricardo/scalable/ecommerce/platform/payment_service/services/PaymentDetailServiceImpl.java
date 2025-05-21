@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ricardo.scalable.ecommerce.platform.libs_common.entities.Order;
+import com.ricardo.scalable.ecommerce.platform.libs_common.enums.OrderStatus;
 import com.ricardo.scalable.ecommerce.platform.payment_service.model.PaymentStatus;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.FlowApiException;
 import com.ricardo.scalable.ecommerce.platform.payment_service.exception.OrderAlreadyPaidException;
@@ -134,6 +135,31 @@ public class PaymentDetailServiceImpl implements PaymentDetailService {
         payment.setPaymentMethod(paymentMethod);
 
         paymentDetailRepository.save(payment);
+    }
+
+    @Override
+    @Transactional
+    public void updateOrderStatus(String token) {
+        PaymentDetail paymentDetail = paymentDetailRepository.findByTransactionId(token)
+                .orElseThrow(() -> new PaymentDetailNotFoundException("No se encontró el detalle del pago"));
+
+        Order order = orderRepository.findById(paymentDetail.getOrder().getId())
+                .orElseThrow(() -> new OrderNotFoundException("No se encontró la orden"));
+
+        
+        OrderStatus orderStatus = getOrderStatusFromPaymentStatus(paymentDetail.getStatus());
+        order.setOrderStatus(orderStatus);
+        orderRepository.save(order);
+    }
+
+    private OrderStatus getOrderStatusFromPaymentStatus(PaymentStatus paymentStatus) {
+        return switch (paymentStatus) {
+            case PENDING -> OrderStatus.PENDING;
+            case COMPLETED -> OrderStatus.PAID;
+            case FAILED -> OrderStatus.PENDING;
+            case REFUNDED -> OrderStatus.REFUNDED;
+            default -> throw new FlowApiException("Estado de pago no soportado");
+        };
     }
 
     @Override

@@ -167,6 +167,7 @@ public class PaymentDetailController {
     @RequestMapping(value = "/payment-return", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<Void> returnAfterPayment(@RequestParam(required = false) String token) {
         stockService.updateStockAfterPayment(token);
+        paymentDetailService.updateOrderStatus(token);
         URI redirectUri = URI.create("http://localhost:8009/return");
         return ResponseEntity.status(302).location(redirectUri).build();
     }

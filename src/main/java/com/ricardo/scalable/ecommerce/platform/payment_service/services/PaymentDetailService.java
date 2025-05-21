@@ -28,5 +28,7 @@ public interface PaymentDetailService {
 
     void confirmPayment(String token);
 
+    void updateOrderStatus(String token);
+
     void delete(Long id);
 }
