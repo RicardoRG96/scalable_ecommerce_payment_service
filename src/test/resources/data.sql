@@ -178,10 +178,10 @@ INSERT INTO product_skus (product_id, size_attribute_id, color_attribute_id, sku
 -- DISCOUNTS
 
 INSERT INTO discounts (discount_type, discount_value, start_date, end_date, is_active)
-    VALUES ('fixed_amount', 10.00, '2025-03-01 00:00:00', '2025-03-31 23:59:59', TRUE);
+    VALUES ('amount', 10.00, '2025-03-01 00:00:00', '2025-03-31 23:59:59', TRUE);
 
 INSERT INTO discounts (discount_type, discount_value, start_date, end_date, is_active)
-    VALUES ('free_shipping', 5.00, '2025-03-10 00:00:00', '2025-04-15 23:59:59', TRUE);
+    VALUES ('amount', 5.00, '2025-03-10 00:00:00', '2025-04-15 23:59:59', TRUE);
 
 INSERT INTO discounts (discount_type, discount_value, start_date, end_date, is_active)
     VALUES ('percentage', 20.00, '2025-03-03 00:00:00', '2025-03-31 23:59:59', TRUE);
